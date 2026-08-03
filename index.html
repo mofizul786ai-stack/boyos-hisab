@@ -280,7 +280,26 @@ document.getElementById("result").innerHTML =
 }
 
 
+function nextBirthday(){
 
+let birth = new Date(document.getElementById("birth").value);
+let today = new Date();
+
+let next = new Date(today.getFullYear(), birth.getMonth(), birth.getDate());
+
+if(next < today){
+ next.setFullYear(today.getFullYear()+1);
+}
+
+let diff = next - today;
+
+let days = Math.floor(diff/(1000*60*60*24));
+let hours = Math.floor((diff/(1000*60*60))%24);
+let minutes = Math.floor((diff/(1000*60))%60);
+
+document.getElementById("birthday").innerHTML =
+"🎂 পরবর্তী জন্মদিন বাকি: "+days+" দিন "+hours+" ঘণ্টা "+minutes+" মিনিট";
+}
 function shareApp(){
 
 
