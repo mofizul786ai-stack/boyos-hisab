@@ -260,31 +260,32 @@ let b=new Date(birth);
 let today=new Date();
 
 
+let age=today.getFullYear()-b.getFullYear();
 
 
-if(ageDay < 0){
-  ageMonth--;
-  let lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-  ageDay += lastMonth.getDate();
-}
+let m=today.getMonth()-b.getMonth();
 
-if(ageMonth < 0){
-  ageYear--;
-  ageMonth += 12;
-}
 
-document.getElementById("result").innerHTML =
-"আপনার বয়স: " + ageYear + " বছর " + ageMonth + " মাস " + ageDay + " দিন";
+if(m<0 || (m===0 && today.getDate()<b.getDate())){
 
+age--;
 
 }
 
 
-function nextBirthday(){
+document.getElementById("result").innerHTML=
 
-let birth = new Date(document.getElementById("birth").value);
-let today = new Date();
+"আপনার বয়স: "+age+" বছর";
 
+
+}
+
+
+
+function shareApp(){
+
+
+navigator.share({
 
 title:"বয়স হিসাব",
 
