@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>বয়স হিসাব</title>
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+
+<link rel="apple-touch-icon" href="icon.png">
+
+<meta name="theme-color" content="#000000">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  font-family: Arial;
+  background:#f2f5ff;
+  text-align:center;
+  padding:30px;
+}
+
+.box{
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  max-width:350px;
+  margin:auto;
+  box-shadow:0 0 15px #ccc;
+}
+
+h1{
+  color:#2563eb;
+}
+
+input,button{
+  width:90%;
+  padding:12px;
+  margin:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+}
+
+#result{
+  margin-top:20px;
+  font-size:18px;
+  color:#111;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>🎂 বয়স হিসাব</h1>
+
+<p>জন্ম তারিখ দিন</p>
+
+<input type="date" id="dob">
+<button onclick="calculateAge()">Calculate</button>
+<button onclick="shareAge()">📤 বয়স শেয়ার করুন</button>
+
+
+<div id="result"></div>
+
+</div>
+
+
+<script>
+
+function calculateAge(){
+
+let dob = document.getElementById("dob").value;
+
+if(dob==""){
+alert("জন্ম তারিখ নির্বাচন করুন");
+return;
+}
+
+let birth = new Date(dob);
+let today = new Date();
+
+let year = today.getFullYear()-birth.getFullYear();
+let month = today.getMonth()-birth.getMonth();
+let day = today.getDate()-birth.getDate();
+
+if(day<0){
+month--;
+day += new Date(today.getFullYear(), today.getMonth(),0).getDate();
+}
+
+if(month<0){
+year--;
+month+=12;
+}
+
+let nextBirthday = new Date(
+today.getFullYear(),
+birth.getMonth(),
+birth.getDate()
+);
+
+if(nextBirthday < today){
+nextBirthday.setFullYear(today.getFullYear()+1);
+}
+
+let remain = Math.ceil(
+(nextBirthday - today)/(1000*60*60*24)
+);
+
+let totalDays = Math.floor(
+(today - birth) / (1000 * 60 * 60 * 24)
+);
+
+let totalHours = totalDays * 24;
+
+
+document.getElementById("result").innerHTML =
+"আপনার বয়স:<br><b>"+
+year+" বছর "+month+" মাস "+day+" দিন</b><br><br>"+
+"📅 মোট দিন: "+totalDays+" দিন<br>"+
+"⏰ মোট ঘণ্টা: "+totalHours+" ঘণ্টা<br><br>"+
+"🎂 পরের জন্মদিন: "+remain+" দিন বাকি";
+"🎂 পরের জন্মদিন: "+remain+" দিন বাকি";
+shareText =
+"আমার বয়স: "+year+" বছর "+month+" মাস "+day+" দিন\n"+
+"মোট দিন: "+totalDays+" দিন\n"+
+"মোট ঘণ্টা: "+totalHours+" ঘণ্টা\n"+
+"পরের জন্মদিন: "+remain+" দিন বাকি";
+}
+let shareText = "";
+
+function shareAge(){
+
+if(shareText==""){
+alert("আগে বয়স হিসাব করুন");
+return;
+}
+
+if(navigator.share){
+
+navigator.share({
+title:"বয়স হিসাব",
+text:shareText
+});
+
+}else{
+
+alert(shareText);
+
+}
+
+}
+</script>
+
+
+</body>
+</html>
