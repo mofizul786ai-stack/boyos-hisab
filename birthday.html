@@ -1,1 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Birthday Reminder</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+margin:0;
+background:linear-gradient(135deg,#2563eb,#60a5fa);
+min-height:100vh;
+}
+
+
+.header{
+height:260px;
+background:#0647c7;
+border-radius:0 0 40px 40px;
+text-align:center;
+color:white;
+padding:30px;
+}
+
+.header h1{
+font-size:30px;
+}
+
+.cake{
+font-size:80px;
+margin-top:20px;
+}
+
+
+.card{
+
+background:white;
+margin:-40px 20px 20px;
+padding:25px;
+border-radius:30px;
+box-shadow:0 10px 30px #0003;
+
+}
+
+
+label{
+font-size:18px;
+}
+
+
+input{
+
+width:100%;
+padding:15px;
+margin:15px 0;
+border-radius:15px;
+border:2px solid #ddd;
+font-size:18px;
+
+}
+
+
+.box{
+
+background:#f1f5ff;
+padding:20px;
+margin-top:15px;
+border-radius:20px;
+
+}
+
+
+.big{
+
+font-size:45px;
+font-weight:bold;
+color:#2563eb;
+
+}
+
+
+button{
+
+width:100%;
+padding:15px;
+margin-top:15px;
+border:none;
+border-radius:20px;
+background:#ef3465;
+color:white;
+font-size:18px;
+font-weight:bold;
+
+}
+
+
+.yellow{
+
+background:#ffe9a8;
+color:#555;
+
+}
+
+
+.nav{
+
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+padding:15px;
+display:flex;
+justify-content:space-around;
+border-radius:25px 25px 0 0;
+
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="header">
+
+<div class="cake">🎂</div>
+
+<h1>Birthday Reminder</h1>
+
+</div>
+
+
+<div class="card">
+
+
+<label>আপনার জন্ম তারিখ</label>
+
+<input type="date" id="birth">
+
+
+<div class="box">
+
+পরবর্তী জন্মদিন
+
+<div class="big" id="days">
+
+0
+
+</div>
+
+দিন বাকি 🎉
+
+
+</div>
+
+
+
+<div class="box yellow">
+
+⏰ Reminder সেট করুন
+
+<br>
+
+জন্মদিনের আগে মনে করিয়ে দেবে
+
+
+</div>
+
+
+
+<button onclick="reminder()">
+
+🔔 Notification চালু করুন
+
+</button>
+
+
+
+<button onclick="share()" >
+
+🔗 Birthday Card শেয়ার করুন
+
+</button>
+
+
+</div>
+
+
+
+<div class="nav">
+
+🏠 হোম
+
+⭐ রাশি
+
+🔔 Reminder
+
+⚙ আরও
+
+</div>
+
+
+
+<script>
+
+
+function reminder(){
+
+alert("Birthday Reminder চালু হয়েছে ✅");
+
+}
+
+
+
+function share(){
+
+navigator.share({
+
+title:"Birthday Reminder",
+
+text:"আমার Birthday Reminder দেখুন",
+
+url:location.href
+
+});
+
+}
+
+
+
+document.getElementById("birth").onchange=function(){
+
+let b=new Date(this.value);
+
+let today=new Date();
+
+
+let next=new Date(today.getFullYear(),b.getMonth(),b.getDate());
+
+
+if(next<today){
+
+next.setFullYear(today.getFullYear()+1);
+
+}
+
+
+let diff=Math.ceil((next-today)/(1000*60*60*24));
+
+
+document.getElementById("days").innerHTML=diff;
+
+
+}
+
+
+</script>
+
+
+</body>
+</html>
