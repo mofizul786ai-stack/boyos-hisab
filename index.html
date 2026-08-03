@@ -260,16 +260,22 @@ let b=new Date(birth);
 let today=new Date();
 
 
-let age=today.getFullYear()-b.getFullYear();
+let ageYear=today.getFullYear()-b.getFullYear();
+
+let ageMonth=today.getMonth()-b.getMonth();
+
+let ageDay=today.getDate()-b.getDate();
 
 
-let m=today.getMonth()-b.getMonth();
+if(ageDay<0){
+ ageMonth--;
+ ageDay+=30;
+}
 
 
-if(m<0 || (m===0 && today.getDate()<b.getDate())){
-
-age--;
-
+if(ageMonth<0){
+ ageYear--;
+ ageMonth+=12;
 }
 
 
