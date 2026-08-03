@@ -1,293 +1,304 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>বয়স হিসাব</title>
-<link rel="icon" type="image/png" href="icon.png">
-<link rel="icon" type="image/png" href="icon.png">
-
-<link rel="apple-touch-icon" href="icon.png">
-
-<meta name="theme-color" content="#000000">
-<meta charset="UTF-8">
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>বয়স হিসাব</title>
+
 <style>
-  #splash{
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #2563eb;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+
+*{
+ box-sizing:border-box;
+ font-family:Arial,sans-serif;
+}
+
+body{
+ margin:0;
+ background:linear-gradient(135deg,#2563eb,#60a5fa);
+ min-height:100vh;
+ text-align:center;
+}
+
+
+/* Splash */
+
+#splash{
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ background:linear-gradient(135deg,#2563eb,#60a5fa);
+ color:white;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ align-items:center;
+ z-index:10;
 }
 
 #splash img{
-  border-radius: 20px;
-  margin-bottom: 20px;
+ width:110px;
+ height:110px;
+ border-radius:25px;
 }
 
 #splash h1{
-  font-size: 32px;
+ font-size:32px;
+ margin:20px;
 }
 
-#splash p{
-  font-size: 18px;
-}
-body{
-  font-family: Arial;
-  background:#f2f5ff;
-  text-align:center;
-  padding:30px;
-}
-
-.box{
-  background:white;
-  padding:30px;
-  border-radius:25px;
-  max-width:350px;
-  margin:auto;
-  box-shadow:0 10px 30px rgba(0,0,0,0.15);
-}
-
-.box h1{
-  color:#2563eb;
-  font-size:28px;
-}
-  button{
-  background:#2563eb;
-  color:white;
-  border:none;
-  padding:14px;
-  border-radius:15px;
-  font-size:17px;
-  width:90%;
-  margin:12px;
-  box-shadow:0 8px 15px rgba(0,0,0,0.2);
-}
-
-.box p{
-  font-size:18px;
-  color:#555;
-}
-
-input,button{
-  width:90%;
-  padding:14px;
-  margin:12px;
-  border-radius:15px;
-  font-size:17px;
-}
-
-input{
-  border:2px solid #ddd;
-}
-  input{
-  background:#f5f5f5;
-  outline:none;
-  }
-
-button{
-  background:#2563eb;
-  color:white;
-  border:none;
-  font-weight:bold;
-}
-
-button:hover{
-  background:#1d4ed8;
-}
-
-#result{
-  margin-top:20px;
-  padding:15px;
-  background:#f1f5ff;
-  border-radius:15px;
-  font-size:18px;
-}
-  #result{
-  margin-top:20px;
-  font-size:18px;
-  color:#111;
-}
-
-h1{
-  color:#2563eb;
-}
-
-input,button{
-  width:90%;
-  padding:12px;
-  margin:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
-
-button{
-  background:#2563eb;
-  color:white;
-  border:none;
-}
-
-#result{
-  margin-top:20px;
-  font-size:18px;
-  color:#111;
-}
-  .loader{
-  width:40px;
-  height:40px;
-  border:5px solid #ffffff;
-  border-top:5px solid #2563eb;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-top:20px;
+.loader{
+ width:45px;
+ height:45px;
+ border:5px solid white;
+ border-top:5px solid #2563eb;
+ border-radius:50%;
+ animation:spin 1s linear infinite;
 }
 
 @keyframes spin{
-  100%{
-    transform:rotate(360deg);
-  }
+ 100%{
+ transform:rotate(360deg);
+ }
 }
-  #result{
-  margin-top:20px;
-  background:#f8fafc;
-  padding:15px;
-  border-radius:15px;
-  font-size:18px;
-  color:#2563eb;
-  font-weight:bold;
+
+
+/* Main Card */
+
+.container{
+
+ padding:30px 15px;
+
 }
+
+
+.card{
+
+ background:white;
+ max-width:380px;
+ margin:auto;
+ padding:30px;
+ border-radius:30px;
+ box-shadow:0 10px 30px rgba(0,0,0,.2);
+
+}
+
+
+.logo{
+
+ width:90px;
+ height:90px;
+ border-radius:20px;
+
+}
+
+
+h1{
+
+ color:#2563eb;
+
+}
+
+
+p{
+
+ color:#555;
+ font-size:17px;
+
+}
+
+
+input{
+
+ width:100%;
+ padding:15px;
+ margin:15px 0;
+ border-radius:15px;
+ border:2px solid #ddd;
+ font-size:16px;
+
+}
+
+
+button{
+
+ width:100%;
+ padding:15px;
+ background:#2563eb;
+ color:white;
+ border:none;
+ border-radius:15px;
+ font-size:18px;
+ font-weight:bold;
+
+}
+
+
+button:hover{
+
+ background:#1d4ed8;
+
+}
+
+
+.result{
+
+ margin-top:20px;
+ padding:20px;
+ background:#eff6ff;
+ border-radius:20px;
+ color:#2563eb;
+ font-size:18px;
+ font-weight:bold;
+
+}
+
+
+.share{
+
+ margin-top:15px;
+ background:#16a34a;
+
+}
+
+
 </style>
 
 </head>
 
+
 <body>
-  <div id="splash">
-  <img src="icon.png" width="120">
-  <h1>বয়স হিসাব</h1>
-  <p>আপনার বয়স জানুন সহজে</p>
-    <div class="loader"></div>
-</div>
 
-<script>
-setTimeout(function(){
- document.getElementById("splash").style.display="none";
-},2000);
-</script>
 
-<div class="box">
-  <img src="icon.png" class="app-logo">
+<div id="splash">
+
+<img src="icon.png">
 
 <h1>বয়স হিসাব</h1>
 
-<h1>বয়স হিসাব</h1>
+<p>আপনার বয়স জানুন সহজে</p>
 
-<p>জন্ম তারিখ দিন</p>
-
-<input type="date" id="dob">
-<button onclick="calculateAge()">Calculate</button>
-<button onclick="shareAge()">📤 বয়স শেয়ার করুন</button>
-
-
-<div id="result"></div>
+<div class="loader"></div>
 
 </div>
 
 
+
+<div class="container">
+
+
+<div class="card">
+
+
+<img src="icon.png" class="logo">
+
+
+<h1>বয়স হিসাব</h1>
+
+
+<p>জন্ম তারিখ নির্বাচন করুন</p>
+
+
+<input type="date" id="birth">
+
+
+<button onclick="calculate()">
+বয়স হিসাব করুন
+</button>
+
+
+<div class="result" id="result">
+
+আপনার বয়স এখানে দেখা যাবে
+
+</div>
+
+
+<button class="share" onclick="shareApp()">
+
+Share করুন
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
 <script>
 
-function calculateAge(){
 
-let dob = document.getElementById("dob").value;
+setTimeout(()=>{
 
-if(dob==""){
-alert("জন্ম তারিখ নির্বাচন করুন");
+document.getElementById("splash").style.display="none";
+
+},3000);
+
+
+
+function calculate(){
+
+
+let birth=document.getElementById("birth").value;
+
+
+if(!birth){
+
+alert("জন্ম তারিখ দিন");
+
 return;
+
 }
 
-let birth = new Date(dob);
-let today = new Date();
 
-let year = today.getFullYear()-birth.getFullYear();
-let month = today.getMonth()-birth.getMonth();
-let day = today.getDate()-birth.getDate();
+let b=new Date(birth);
 
-if(day<0){
-month--;
-day += new Date(today.getFullYear(), today.getMonth(),0).getDate();
+let today=new Date();
+
+
+let age=today.getFullYear()-b.getFullYear();
+
+
+let m=today.getMonth()-b.getMonth();
+
+
+if(m<0 || (m===0 && today.getDate()<b.getDate())){
+
+age--;
+
 }
 
-if(month<0){
-year--;
-month+=12;
+
+document.getElementById("result").innerHTML=
+
+"আপনার বয়স: "+age+" বছর";
+
+
 }
 
-let nextBirthday = new Date(
-today.getFullYear(),
-birth.getMonth(),
-birth.getDate()
-);
-
-if(nextBirthday < today){
-nextBirthday.setFullYear(today.getFullYear()+1);
-}
-
-let remain = Math.ceil(
-(nextBirthday - today)/(1000*60*60*24)
-);
-
-let totalDays = Math.floor(
-(today - birth) / (1000 * 60 * 60 * 24)
-);
-
-let totalHours = totalDays * 24;
 
 
-document.getElementById("result").innerHTML =
-"আপনার বয়স:<br><b>"+
-year+" বছর "+month+" মাস "+day+" দিন</b><br><br>"+
-"📅 মোট দিন: "+totalDays+" দিন<br>"+
-"⏰ মোট ঘণ্টা: "+totalHours+" ঘণ্টা<br><br>"+
-"🎂 পরের জন্মদিন: "+remain+" দিন বাকি";
-"🎂 পরের জন্মদিন: "+remain+" দিন বাকি";
-shareText =
-"আমার বয়স: "+year+" বছর "+month+" মাস "+day+" দিন\n"+
-"মোট দিন: "+totalDays+" দিন\n"+
-"মোট ঘণ্টা: "+totalHours+" ঘণ্টা\n"+
-"পরের জন্মদিন: "+remain+" দিন বাকি";
-}
-let shareText = "";
+function shareApp(){
 
-function shareAge(){
-
-if(shareText==""){
-alert("আগে বয়স হিসাব করুন");
-return;
-}
-
-if(navigator.share){
 
 navigator.share({
+
 title:"বয়স হিসাব",
-text:shareText
+
+text:"আমার বয়স হিসাব করুন",
+
+url:location.href
+
 });
 
-}else{
-
-alert(shareText);
 
 }
 
-}
+
 </script>
 
 
