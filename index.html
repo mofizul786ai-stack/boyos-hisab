@@ -213,6 +213,9 @@ button:hover{
 আপনার বয়স এখানে দেখা যাবে
 
 </div>
+ <div class="result" id="rashi">
+রাশি এখানে দেখা যাবে
+ </div>
 
 
 <button class="share" onclick="shareApp()">
@@ -284,6 +287,50 @@ document.getElementById("result").innerHTML =
 
 
 }
+ let month = b.getMonth()+1;
+let day = b.getDate();
+
+let rashi="";
+
+if((month==3 && day>=21)||(month==4 && day<=19)){
+ rashi="মেষ ♈";
+}
+else if((month==4 && day>=20)||(month==5 && day<=20)){
+ rashi="বৃষ ♉";
+}
+else if((month==5 && day>=21)||(month==6 && day<=20)){
+ rashi="মিথুন ♊";
+}
+else if((month==6 && day>=21)||(month==7 && day<=22)){
+ rashi="কর্কট ♋";
+}
+else if((month==7 && day>=23)||(month==8 && day<=22)){
+ rashi="সিংহ ♌";
+}
+else if((month==8 && day>=23)||(month==9 && day<=22)){
+ rashi="কন্যা ♍";
+}
+else if((month==9 && day>=23)||(month==10 && day<=22)){
+ rashi="তুলা ♎";
+}
+else if((month==10 && day>=23)||(month==11 && day<=21)){
+ rashi="বৃশ্চিক ♏";
+}
+else if((month==11 && day>=22)||(month==12 && day<=21)){
+ rashi="ধনু ♐";
+}
+else if((month==12 && day>=22)||(month==1 && day<=19)){
+ rashi="মকর ♑";
+}
+else if((month==1 && day>=20)||(month==2 && day<=18)){
+ rashi="কুম্ভ ♒";
+}
+else{
+ rashi="মীন ♓";
+}
+
+document.getElementById("rashi").innerHTML =
+"আপনার রাশি: "+rashi;
 
 
 
