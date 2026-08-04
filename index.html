@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -9,112 +10,135 @@
 <style>
 
 body{
- margin:0;
- font-family: sans-serif;
- background:#f5f8ff;
- color:#222;
+margin:0;
+font-family:sans-serif;
+background:#f4f7ff;
+padding-bottom:90px;
 }
+
 
 .header{
- display:flex;
- justify-content:space-between;
- align-items:center;
- padding:20px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px;
 }
+
 
 .logo{
- width:80px;
- height:80px;
- border-radius:20px;
+width:80px;
+height:80px;
+border-radius:22px;
 }
+
 
 .icon{
- font-size:28px;
+font-size:28px;
 }
+
 
 .container{
- padding:20px;
+padding:20px;
 }
 
-h1{
- text-align:center;
- color:#1565ff;
- font-size:38px;
+
+.title{
+text-align:center;
+font-size:38px;
+color:#1765ff;
+font-weight:bold;
 }
 
-.subtitle{
- text-align:center;
- color:#777;
+
+.sub{
+text-align:center;
+color:#777;
 }
+
 
 .box{
- background:white;
- padding:20px;
- border-radius:25px;
- margin-top:20px;
- box-shadow:0 5px 15px #ddd;
+background:white;
+padding:20px;
+border-radius:25px;
+margin-top:20px;
 }
+
 
 input{
- width:90%;
- padding:18px;
- border-radius:20px;
- border:1px solid #ddd;
- font-size:18px;
+width:90%;
+padding:18px;
+border-radius:20px;
+border:1px solid #ddd;
+font-size:18px;
 }
 
-button{
- width:100%;
- padding:18px;
- margin-top:15px;
- border:none;
- border-radius:25px;
- background:#2166ff;
- color:white;
- font-size:20px;
+
+.btn{
+width:100%;
+padding:18px;
+margin-top:20px;
+border:none;
+border-radius:25px;
+background:#1765ff;
+color:white;
+font-size:20px;
 }
+
 
 .card{
- background:#eef5ff;
- padding:25px;
- border-radius:25px;
- margin-top:20px;
+background:#eef5ff;
+margin-top:20px;
+padding:25px;
+border-radius:25px;
 }
+
 
 .card h3{
- margin:0;
+margin:0;
 }
 
-.big{
- font-size:28px;
- color:#145cff;
- font-weight:bold;
+
+.value{
+font-size:28px;
+font-weight:bold;
+color:#1765ff;
 }
+
 
 .share{
- background:#10b95b;
+background:#12b95a;
 }
+
 
 .bottom{
- position:fixed;
- bottom:0;
- width:100%;
- background:white;
- display:flex;
- justify-content:space-around;
- padding:15px 0;
- border-radius:25px 25px 0 0;
+
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:15px 0;
+border-radius:25px 25px 0 0;
+box-shadow:0 -3px 15px #ddd;
+
 }
 
+
 .bottom div{
- text-align:center;
- color:#555;
+
+text-align:center;
+font-size:14px;
+color:#555;
+
 }
 
 
 </style>
 
 </head>
+
 
 <body>
 
@@ -130,14 +154,19 @@ button{
 </div>
 
 
+
 <div class="container">
 
 
-<h1>বয়স হিসাব</h1>
+<div class="title">
+বয়স হিসাব
+</div>
 
-<p class="subtitle">
+
+<p class="sub">
 জন্ম তারিখ নির্বাচন করুন
 </p>
+
 
 
 <div class="box">
@@ -145,7 +174,7 @@ button{
 <input type="date" id="birthDate">
 
 
-<button onclick="calculateAge()">
+<button class="btn" onclick="calculateAge()">
 বয়স হিসাব করুন
 </button>
 
@@ -153,15 +182,17 @@ button{
 
 
 
+
 <div class="card">
 
 <h3>🎂 আপনার বয়স</h3>
 
-<p class="big" id="age">
-25 বছর 2 মাস 5 দিন
+<p class="value" id="age">
+আপনার বয়স এখানে দেখাবে
 </p>
 
 </div>
+
 
 
 
@@ -169,16 +200,19 @@ button{
 
 <h3>⭐ আপনার রাশি</h3>
 
-<p class="big">
-♊ মিথুন
+<p class="value" id="rashi">
+রাশি এখানে দেখাবে
 </p>
 
 </div>
 
 
 
-<button class="share">
+
+<button class="btn share" onclick="shareApp()">
+
 🟢 Share করুন
+
 </button>
 
 
@@ -187,49 +221,126 @@ button{
 
 
 
+
+
 <div class="bottom">
 
-<div>
+
+<div onclick="location.href='index.html'">
 🏠<br>
 হোম
 </div>
 
-<div>
+
+<div onclick="location.href='rashi.html'">
 ⭐<br>
 রাশি
 </div>
 
-<div>
-🔗<br>
-শেয়ার
+
+<div onclick="location.href='birthday.html'">
+🔔<br>
+Reminder
 </div>
 
-<div>
+
+<div onclick="location.href='more.html'">
 ⚙️<br>
 আরও
 </div>
 
+
 </div>
+
+
+
 
 
 
 <script>
 
+
 function calculateAge(){
 
-let date=document.getElementById("birthDate").value;
 
-if(date){
+let dob=new Date(document.getElementById("birthDate").value);
+
+
+let today=new Date();
+
+
+let age=today.getFullYear()-dob.getFullYear();
+
+
+let month=today.getMonth()-dob.getMonth();
+
+
+if(month<0){
+
+age--;
+
+}
+
 
 document.getElementById("age").innerHTML=
-"বয়স হিসাব হয়েছে ✅";
+age+" বছর";
+
+
+let day=dob.getDate();
+let mon=dob.getMonth()+1;
+
+
+let r="";
+
+
+if(mon==5 && day>=21 || mon==6 && day<=20){
+
+r="♊ মিথুন";
+
+}
+else if(mon==4 && day>=21 || mon==5 && day<=20){
+
+r="♉ বৃষ";
+
+}
+else{
+
+r="⭐ আপনার রাশি";
+
+}
+
+
+document.getElementById("rashi").innerHTML=r;
+
+
+}
+
+
+
+
+function shareApp(){
+
+if(navigator.share){
+
+navigator.share({
+
+title:"বয়স হিসাব App",
+
+text:"আমার বয়স হিসাব করুন",
+
+url:location.href
+
+});
 
 }
 
 }
+
+
 
 </script>
 
 
 </body>
-</html>
+
+ </html>
