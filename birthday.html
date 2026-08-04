@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Birthday Reminder</title>
@@ -8,128 +9,123 @@
 <style>
 
 *{
- box-sizing:border-box;
- font-family:Arial,sans-serif;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
 body{
- margin:0;
- min-height:100vh;
- background:linear-gradient(135deg,#2563eb,#60a5fa);
+margin:0;
+min-height:100vh;
+background:linear-gradient(135deg,#2563eb,#60a5fa);
 }
 
 .top{
- background:#2563eb;
- color:white;
- padding:25px;
- text-align:center;
- border-radius:0 0 35px 35px;
+background:#2563eb;
+color:white;
+padding:25px;
+text-align:center;
+border-radius:0 0 35px 35px;
 }
 
 .top h1{
- margin:10px;
- font-size:28px;
+margin:10px;
+font-size:28px;
 }
 
 .cake{
- font-size:80px;
- margin-top:20px;
+font-size:80px;
 }
 
 .card{
- background:white;
- margin:-20px 20px 20px;
- padding:25px;
- border-radius:35px;
- box-shadow:0 10px 25px #0003;
+background:white;
+margin:-20px 20px 80px;
+padding:25px;
+border-radius:35px;
+box-shadow:0 10px 25px #0003;
 }
 
 label{
- color:#555;
- font-size:16px;
+color:#555;
+font-size:16px;
 }
 
 .date{
- background:#eff6ff;
- padding:18px;
- margin-top:15px;
- border-radius:20px;
- color:#2563eb;
- font-size:20px;
- font-weight:bold;
+background:#eff6ff;
+padding:18px;
+margin-top:15px;
+border-radius:20px;
 }
 
+input{
+width:100%;
+padding:12px;
+border-radius:15px;
+border:0;
+font-size:18px;
+}
 
 .next{
- margin-top:20px;
- padding:25px;
- background:#fff1f2;
- border-radius:25px;
- color:#e11d48;
+margin-top:20px;
+padding:25px;
+background:#fff1f2;
+border-radius:25px;
+color:#e11d48;
 }
 
 .next h2{
- font-size:55px;
- margin:5px;
+font-size:55px;
+margin:5px;
 }
-
 
 .option{
- margin-top:15px;
- padding:18px;
- background:#fef3c7;
- border-radius:20px;
-}
-
-
-.notify{
- background:#eff6ff;
+margin-top:15px;
+padding:18px;
+background:#fef3c7;
+border-radius:20px;
 }
 
 
 button{
- width:100%;
- padding:16px;
- margin-top:15px;
- border:none;
- border-radius:20px;
- font-size:18px;
- font-weight:bold;
- color:white;
- background:#ec4899;
+width:100%;
+padding:16px;
+margin-top:15px;
+border:none;
+border-radius:20px;
+font-size:18px;
+font-weight:bold;
+color:white;
+background:#ec4899;
 }
 
 
 .menu{
- position:fixed;
- bottom:0;
- left:0;
- right:0;
- background:white;
- display:flex;
- justify-content:space-around;
- padding:15px;
- border-radius:25px 25px 0 0;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:15px;
+border-radius:25px 25px 0 0;
 }
 
 
 .menu div{
- text-align:center;
- color:#555;
+text-align:center;
+color:#555;
 }
-
 
 .active{
- color:#2563eb!important;
+color:#2563eb!important;
 }
-
 
 </style>
 
 </head>
 
-<body>
 
+<body>
 
 <div class="top">
 
@@ -138,12 +134,11 @@ button{
 <h1>Birthday Reminder</h1>
 
 </div>
-
-
 <div class="card">
 
-
-<label>আপনার জন্ম তারিখ</label>
+<label>
+আপনার জন্ম তারিখ
+</label>
 
 
 <div class="date">
@@ -151,18 +146,25 @@ button{
 <input 
 id="birthDate"
 type="date"
-onchange="localStorage.setItem('birthday',this.value)">
+onchange="saveBirthday()">
 
 </div>
 
 
+
 <div class="next">
 
-<h3>পরবর্তী জন্মদিন</h3>
+<h3>
+পরবর্তী জন্মদিন
+</h3>
 
-<h2 id="days">23</h2>
+<h2 id="days">
+0
+</h2>
 
-<p>দিন বাকি 🎉</p>
+<p>
+দিন বাকি 🎉
+</p>
 
 </div>
 
@@ -181,13 +183,17 @@ onchange="localStorage.setItem('birthday',this.value)">
 
 
 <button onclick="enableNotification()">
+
 🔔 Notification চালু করুন
+
 </button>
 
 
 
 <button onclick="shareBirthday()">
+
 🎁 Birthday Card Share করুন
+
 </button>
 
 
@@ -195,15 +201,36 @@ onchange="localStorage.setItem('birthday',this.value)">
 
 
 
+
 <div class="menu">
 
-<div>🏠<br>হোম</div>
+<div>
+🏠
+<br>
+হোম
+</div>
 
-<div>⭐<br>রাশি</div>
 
-<div class="active">🔔<br>Reminder</div>
+<div>
+⭐
+<br>
+রাশি
+</div>
 
-<div>⚙<br>আরও</div>
+
+<div class="active">
+🔔
+<br>
+Reminder
+</div>
+
+
+<div>
+⚙
+<br>
+আরও
+</div>
+
 
 </div>
 
@@ -212,126 +239,87 @@ onchange="localStorage.setItem('birthday',this.value)">
 <script>
 
 
-function shareCard(){
+// Save Birthday
 
-navigator.share({
+function saveBirthday(){
 
-title:"Birthday Reminder",
-
-text:"আমার Birthday Reminder দেখুন 🎂",
-
-url:location.href
-
-});
-
-}
-let b = localStorage.getItem("birthday");
-
-if(b){
- document.getElementById("birthDate").value = b;
-}
+let date =
+document.getElementById("birthDate").value;
 
 
-</script>
+localStorage.setItem(
+"birthday",
+date
+);
 
-<script>
 
-// Notification Permission
-function enableNotification(){
-
-if ("Notification" in window){
-
-Notification.requestPermission().then(function(permission){
-
-if(permission === "granted"){
-
-new Notification("🎂 Birthday Reminder",{
-body:"আপনার জন্মদিনের Reminder চালু হয়েছে ❤️",
-icon:"https://cdn-icons-png.flaticon.com/512/3174/3174767.png"
-});
-
-alert("Notification চালু হয়েছে ✅");
-
-}
-
-});
-
-}
+calculateDays();
 
 }
 
 
-// Birthday Share Card
-function shareBirthday(){
-
-let date = document.getElementById("birthDate").value;
-
-let text = 
-"🎂 Birthday Reminder\n\n"+
-"আমার জন্মদিন: "+date+
-"\n\nএই অ্যাপ দিয়ে জন্মদিন মনে রাখুন ❤️";
 
 
-if(navigator.share){
+// Load Birthday
 
-navigator.share({
+let saved =
+localStorage.getItem("birthday");
 
-title:"Birthday Reminder",
 
-text:text
+if(saved){
 
-});
+document.getElementById("birthDate").value=saved;
 
-}else{
-
-alert(text);
-
-}
+calculateDays();
 
 }
 
 
-// Auto Birthday Notification Check
-
-function checkBirthday(){
-
-let savedDate = localStorage.getItem("birthday");
-
-if(!savedDate) return;
 
 
-let today = new Date();
+// Countdown
 
-let birthday = new Date(savedDate);
+function calculateDays(){
+
+let saved =
+localStorage.getItem("birthday");
 
 
-if(
-today.getDate()==birthday.getDate() &&
-today.getMonth()==birthday.getMonth()
-){
+if(!saved) return;
 
-if(Notification.permission=="granted"){
 
-new Notification("🎉 শুভ জন্মদিন!",{
+let today=new Date();
 
-body:"আজ আপনার বিশেষ দিন ❤️"
+let birth=new Date(saved);
 
-});
+
+let nextBirthday =
+new Date(
+today.getFullYear(),
+birth.getMonth(),
+birth.getDate()
+);
+
+
+if(nextBirthday < today){
+
+nextBirthday.setFullYear(
+today.getFullYear()+1
+);
 
 }
 
-}
+
+let diff =
+nextBirthday-today;
+
+
+let days =
+Math.ceil(
+diff/(1000*60*60*24)
+);
+
+
+document.getElementById("days").innerHTML=days;
 
 }
-
-
-setInterval(checkBirthday,60000);
-let b = localStorage.getItem("birthday");
-
-if(b){
- document.getElementById("birthDate").value = b;
-}
-
-</script>
-</body>
-</html>
