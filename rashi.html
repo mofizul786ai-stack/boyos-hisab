@@ -1,1 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>রাশি</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+margin:0;
+background:linear-gradient(135deg,#2563eb,#93c5fd);
+}
+
+
+.header{
+color:white;
+text-align:center;
+padding:35px 20px;
+}
+
+.header h1{
+font-size:32px;
+}
+
+
+.card{
+
+background:white;
+margin:0 20px 80px;
+padding:25px;
+border-radius:30px;
+}
+
+
+input{
+
+width:100%;
+padding:15px;
+border:2px solid #ddd;
+border-radius:15px;
+font-size:18px;
+
+}
+
+
+.result{
+
+background:#eff6ff;
+padding:25px;
+border-radius:20px;
+margin-top:20px;
+text-align:center;
+
+}
+
+
+.rashi{
+
+font-size:40px;
+color:#2563eb;
+font-weight:bold;
+
+}
+
+
+
+.grid{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+margin-top:20px;
+
+}
+
+
+.box{
+
+background:#f8fafc;
+padding:15px;
+border-radius:20px;
+text-align:center;
+font-size:18px;
+
+}
+
+
+
+button{
+
+width:100%;
+padding:15px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:20px;
+font-size:18px;
+margin-top:15px;
+
+}
+
+
+.menu{
+
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:15px;
+border-radius:25px 25px 0 0;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+<h1>⭐ আপনার রাশি</h1>
+
+<p>জন্ম তারিখ দিয়ে রাশি দেখুন</p>
+
+</div>
+
+
+
+<div class="card">
+
+
+<input type="date" id="date">
+
+
+
+<div class="result">
+
+<h3>আপনার রাশি</h3>
+
+<div class="rashi" id="show">
+⭐
+</div>
+
+<p id="text">
+জন্ম তারিখ নির্বাচন করুন
+</p>
+
+</div>
+
+
+
+<div class="grid">
+
+<div class="box">♈ মেষ</div>
+<div class="box">♉ বৃষ</div>
+<div class="box">♊ মিথুন</div>
+<div class="box">♋ কর্কট</div>
+<div class="box">♌ সিংহ</div>
+<div class="box">♍ কন্যা</div>
+<div class="box">♎ তুলা</div>
+<div class="box">♏ বৃশ্চিক</div>
+<div class="box">♐ ধনু</div>
+<div class="box">♑ মকর</div>
+<div class="box">♒ কুম্ভ</div>
+<div class="box">♓ মীন</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="menu">
+
+<div>🏠<br>হোম</div>
+
+<div>⭐<br>রাশি</div>
+
+<div>🔔<br>Reminder</div>
+
+<div>⚙<br>আরও</div>
+
+</div>
+
+
+
+<script>
+
+
+document.getElementById("date").onchange=function(){
+
+
+let d=new Date(this.value);
+
+let day=d.getDate();
+
+let month=d.getMonth()+1;
+
+
+let r="";
+
+
+if((month==3&&day>=21)||(month==4&&day<=19))
+r="♈ মেষ";
+
+else if((month==4&&day>=20)||(month==5&&day<=20))
+r="♉ বৃষ";
+
+else if((month==5&&day>=21)||(month==6&&day<=20))
+r="♊ মিথুন";
+
+else if((month==6&&day>=21)||(month==7&&day<=22))
+r="♋ কর্কট";
+
+else if((month==7&&day>=23)||(month==8&&day<=22))
+r="♌ সিংহ";
+
+else if((month==8&&day>=23)||(month==9&&day<=22))
+r="♍ কন্যা";
+
+else if((month==9&&day>=23)||(month==10&&day<=22))
+r="♎ তুলা";
+
+else if((month==10&&day>=23)||(month==11&&day<=21))
+r="♏ বৃশ্চিক";
+
+else if((month==11&&day>=22)||(month==12&&day<=21))
+r="♐ ধনু";
+
+else if((month==12&&day>=22)||(month==1&&day<=19))
+r="♑ মকর";
+
+else if((month==1&&day>=20)||(month==2&&day<=18))
+r="♒ কুম্ভ";
+
+else
+r="♓ মীন";
+
+
+document.getElementById("show").innerHTML=r;
+
+document.getElementById("text").innerHTML="আপনার জন্ম রাশি";
+
+
+}
+
+
+</script>
+
+
+</body>
+</html>
