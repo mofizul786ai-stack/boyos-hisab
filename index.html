@@ -1,164 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>বয়স হিসাব</title>
+<title>Birthday Reminder</title>
 
 <style>
 
 *{
- box-sizing:border-box;
- font-family:Arial,sans-serif;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
 body{
- margin:0;
- background:linear-gradient(135deg,#2563eb,#60a5fa);
- min-height:100vh;
- text-align:center;
+margin:0;
+background:linear-gradient(135deg,#2563eb,#60a5fa);
+min-height:100vh;
 }
 
-
-/* Splash */
-
-#splash{
- position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
- background:linear-gradient(135deg,#2563eb,#60a5fa);
- color:white;
- display:flex;
- flex-direction:column;
- justify-content:center;
- align-items:center;
- z-index:10;
+.header{
+color:white;
+text-align:center;
+padding:35px 20px;
 }
 
-#splash img{
- width:110px;
- height:110px;
- border-radius:25px;
+.header h1{
+font-size:30px;
 }
 
-#splash h1{
- font-size:32px;
- margin:20px;
-}
-
-.loader{
- width:45px;
- height:45px;
- border:5px solid white;
- border-top:5px solid #2563eb;
- border-radius:50%;
- animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
- 100%{
- transform:rotate(360deg);
- }
-}
-
-
-/* Main Card */
-
-.container{
-
- padding:30px 15px;
-
+.cake{
+font-size:70px;
 }
 
 
 .card{
 
- background:white;
- max-width:380px;
- margin:auto;
- padding:30px;
- border-radius:30px;
- box-shadow:0 10px 30px rgba(0,0,0,.2);
+background:white;
+margin:0 20px 90px;
+padding:25px;
+border-radius:35px;
+box-shadow:0 10px 25px #0003;
 
 }
 
 
-.logo{
+.box{
 
- width:90px;
- height:90px;
- border-radius:20px;
-
-}
-
-
-h1{
-
- color:#2563eb;
+background:#eff6ff;
+padding:20px;
+border-radius:25px;
+margin-top:20px;
 
 }
 
 
-p{
+.box h2{
 
- color:#555;
- font-size:17px;
-
-}
-
-
-input{
-
- width:100%;
- padding:15px;
- margin:15px 0;
- border-radius:15px;
- border:2px solid #ddd;
- font-size:16px;
+color:#2563eb;
 
 }
 
 
 button{
 
- width:100%;
- padding:15px;
- background:#2563eb;
- color:white;
- border:none;
- border-radius:15px;
- font-size:18px;
- font-weight:bold;
+width:100%;
+padding:16px;
+margin-top:20px;
+border:none;
+border-radius:20px;
+background:#ec4899;
+color:white;
+font-size:18px;
+font-weight:bold;
 
 }
 
 
-button:hover{
 
- background:#1d4ed8;
+.menu{
 
-}
-
-
-.result{
-
- margin-top:20px;
- padding:20px;
- background:#eff6ff;
- border-radius:20px;
- color:#2563eb;
- font-size:18px;
- font-weight:bold;
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+border-radius:25px 25px 0 0;
 
 }
 
 
-.share{
+.menu a{
 
- margin-top:15px;
- background:#16a34a;
+text-decoration:none;
+color:#555;
+text-align:center;
+font-size:14px;
+
+}
+
+
+.active{
+
+color:#2563eb!important;
 
 }
 
@@ -171,59 +118,86 @@ button:hover{
 <body>
 
 
-<div id="splash">
+<div class="header">
 
-<img src="icon.png">
+<div class="cake">🎂</div>
 
-<h1>বয়স হিসাব</h1>
+<h1>Birthday Reminder</h1>
 
-<p>আপনার বয়স জানুন সহজে</p>
-
-<div class="loader"></div>
+<p>আপনার বিশেষ দিন মনে রাখুন ❤️</p>
 
 </div>
 
-
-
-<div class="container">
 
 
 <div class="card">
 
 
-<img src="icon.png" class="logo">
+<div class="box">
 
+<h2>🎉 Welcome</h2>
 
-<h1>বয়স হিসাব</h1>
-
-
-<p>জন্ম তারিখ নির্বাচন করুন</p>
-
-
-<input type="date" id="birth">
-
-
-<button onclick="calculate()">
-বয়স হিসাব করুন
-</button>
-
-
-<div class="result" id="result">
-
-আপনার বয়স এখানে দেখা যাবে
+<p>
+Birthday Reminder App এ আপনাকে স্বাগতম।
+</p>
 
 </div>
- <div class="result" id="rashi">
-রাশি এখানে দেখা যাবে
- </div>
 
 
-<button class="share" onclick="shareApp()">
 
-Share করুন
+<div class="box">
+
+<h2>🎂 Reminder</h2>
+
+<p>
+জন্মদিনের দিন আর কতদিন বাকি দেখুন।
+</p>
+
+<button onclick="location.href='birthday.html'">
+
+Birthday Reminder খুলুন
 
 </button>
 
+</div>
+
+
+
+<div class="box">
+
+<h2>⭐ রাশি</h2>
+
+<p>
+আপনার রাশি সম্পর্কে জানুন।
+</p>
+
+
+<button onclick="location.href='rashi.html'">
+
+রাশি দেখুন
+
+</button>
+
+
+</div>
+
+
+
+<div class="box">
+
+<h2>⚙ আরও</h2>
+
+<p>
+App Settings এবং Information
+</p>
+
+
+<button onclick="location.href='more.html'">
+
+আরও দেখুন
+
+</button>
+
 
 </div>
 
@@ -232,126 +206,46 @@ Share করুন
 
 
 
-<script>
+<div class="menu">
 
 
-setTimeout(()=>{
+<a class="active" href="index.html">
 
-document.getElementById("splash").style.display="none";
+🏠<br>
+হোম
 
-},3000);
-
-
-
-function calculate(){
-
-
-let birth=document.getElementById("birth").value;
-
-
-if(!birth){
-
-alert("জন্ম তারিখ দিন");
-
-return;
-
-}
-
-
-let b=new Date(birth);
-
-let today=new Date();
-
-
-let ageYear=today.getFullYear()-b.getFullYear();
-
-let ageMonth=today.getMonth()-b.getMonth();
-
-let ageDay=today.getDate()-b.getDate();
-
-
-if(ageDay<0){
- ageMonth--;
- ageDay+=30;
-}
-
-
-if(ageMonth<0){
- ageYear--;
- ageMonth+=12;
-}
-
-
-document.getElementById("result").innerHTML =
-"আপনার বয়স: "+ageYear+" বছর "+ageMonth+" মাস "+ageDay+" দিন";
+</a>
 
 
 
- let month = b.getMonth()+1;
-let day = b.getDate();
+<a href="rashi.html">
 
-let rashi="";
+⭐<br>
+রাশি
 
-if((month==3 && day>=21)||(month==4 && day<=19)){
- rashi="মেষ ♈";
-}
-else if((month==4 && day>=20)||(month==5 && day<=20)){
- rashi="বৃষ ♉";
-}
-else if((month==5 && day>=21)||(month==6 && day<=20)){
- rashi="মিথুন ♊";
-}
-else if((month==6 && day>=21)||(month==7 && day<=22)){
- rashi="কর্কট ♋";
-}
-else if((month==7 && day>=23)||(month==8 && day<=22)){
- rashi="সিংহ ♌";
-}
-else if((month==8 && day>=23)||(month==9 && day<=22)){
- rashi="কন্যা ♍";
-}
-else if((month==9 && day>=23)||(month==10 && day<=22)){
- rashi="তুলা ♎";
-}
-else if((month==10 && day>=23)||(month==11 && day<=21)){
- rashi="বৃশ্চিক ♏";
-}
-else if((month==11 && day>=22)||(month==12 && day<=21)){
- rashi="ধনু ♐";
-}
-else if((month==12 && day>=22)||(month==1 && day<=19)){
- rashi="মকর ♑";
-}
-else if((month==1 && day>=20)||(month==2 && day<=18)){
- rashi="কুম্ভ ♒";
-}
-else{
- rashi="মীন ♓";
-}
-
-document.getElementById("rashi").innerHTML =
-"আপনার রাশি: "+rashi;
-         }
+</a>
 
 
-function shareApp(){
+
+<a href="birthday.html">
+
+🔔<br>
+Reminder
+
+</a>
 
 
-navigator.share({
 
-title:"বয়স হিসাব",
+<a href="more.html">
 
-text:"আমার বয়স হিসাব করুন",
+⚙<br>
+আরও
 
-url:location.href
-
-});
+</a>
 
 
-}
+</div>
 
-
-</script>
 
 
 </body>
