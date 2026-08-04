@@ -1,185 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
-
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>বয়স হিসাব</title>
 
 <style>
 
-*{
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-margin:0;
-background:#f8fafc;
+ margin:0;
+ font-family: sans-serif;
+ background:#f5f8ff;
+ color:#222;
 }
-
 
 .header{
-
-text-align:center;
-padding:25px;
-
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:20px;
 }
-
-
-.topbar{
-
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px 20px;
-
-}
-
-
-.icon{
-
-font-size:28px;
-
-}
-
 
 .logo{
-
-width:90px;
-height:90px;
-border-radius:25px;
-
+ width:80px;
+ height:80px;
+ border-radius:20px;
 }
 
+.icon{
+ font-size:28px;
+}
+
+.container{
+ padding:20px;
+}
 
 h1{
-
-color:#2563eb;
-font-size:35px;
-
+ text-align:center;
+ color:#1565ff;
+ font-size:38px;
 }
-
 
 .subtitle{
-
-color:#555;
-font-size:18px;
-
+ text-align:center;
+ color:#777;
 }
 
-
-.card{
-
-background:white;
-margin:15px 20px;
-padding:20px;
-border-radius:30px;
-box-shadow:0 5px 20px #0002;
-
+.box{
+ background:white;
+ padding:20px;
+ border-radius:25px;
+ margin-top:20px;
+ box-shadow:0 5px 15px #ddd;
 }
-
-
-.datebox{
-
-background:#f1f5f9;
-padding:18px;
-border-radius:20px;
-font-size:18px;
-
-}
-
 
 input{
-
-border:none;
-background:none;
-font-size:18px;
-width:100%;
-
+ width:90%;
+ padding:18px;
+ border-radius:20px;
+ border:1px solid #ddd;
+ font-size:18px;
 }
 
-
-
-.btn{
-
-width:100%;
-padding:18px;
-margin-top:20px;
-border:none;
-border-radius:25px;
-background:#2563eb;
-color:white;
-font-size:18px;
-font-weight:bold;
-
+button{
+ width:100%;
+ padding:18px;
+ margin-top:15px;
+ border:none;
+ border-radius:25px;
+ background:#2166ff;
+ color:white;
+ font-size:20px;
 }
 
-
-.info{
-
-display:flex;
-align-items:center;
-background:#eff6ff;
-padding:20px;
-border-radius:25px;
-margin-top:20px;
-
+.card{
+ background:#eef5ff;
+ padding:25px;
+ border-radius:25px;
+ margin-top:20px;
 }
 
-
-.circle{
-
-font-size:35px;
-margin-right:20px;
-
+.card h3{
+ margin:0;
 }
 
-
-.value{
-
-color:#2563eb;
-font-size:22px;
-font-weight:bold;
-
+.big{
+ font-size:28px;
+ color:#145cff;
+ font-weight:bold;
 }
-
 
 .share{
-
-background:#16a34a;
-
+ background:#10b95b;
 }
 
-
-.menu{
-
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:15px;
-border-radius:25px 25px 0 0;
-
+.bottom{
+ position:fixed;
+ bottom:0;
+ width:100%;
+ background:white;
+ display:flex;
+ justify-content:space-around;
+ padding:15px 0;
+ border-radius:25px 25px 0 0;
 }
 
-
-.menu a{
-
-text-decoration:none;
-color:#555;
-text-align:center;
-
-}
-
-
-.active{
-
-color:#2563eb!important;
-
+.bottom div{
+ text-align:center;
+ color:#555;
 }
 
 
@@ -187,23 +116,21 @@ color:#2563eb!important;
 
 </head>
 
-
 <body>
 
 
-<div class="topbar">
+<div class="header">
 
 <div class="icon">☰</div>
 
 <img src="icon.png" class="logo">
 
-<div class="icon">↗</div>
+<div class="icon">🔗</div>
 
 </div>
 
 
-
-<div class="header">
+<div class="container">
 
 
 <h1>বয়স হিসাব</h1>
@@ -213,80 +140,45 @@ color:#2563eb!important;
 </p>
 
 
+<div class="box">
+
+<input type="date" id="birthDate">
+
+
+<button onclick="calculateAge()">
+বয়স হিসাব করুন
+</button>
+
 </div>
 
 
 
 <div class="card">
 
+<h3>🎂 আপনার বয়স</h3>
 
-<div class="datebox">
-
-📅
-
-<input type="date" id="birthDate">
-
-</div>
-
-
-
-<button class="btn" onclick="calculateAge()">
-
-বয়স হিসাব করুন
-
-</button>
-
-
-
-<div class="info">
-
-<div class="circle">🎂</div>
-
-<div>
-
-আপনার বয়স
-
-<br>
-
-<span class="value" id="age">
-
+<p class="big" id="age">
 25 বছর 2 মাস 5 দিন
-
-</span>
-
-</div>
-
+</p>
 
 </div>
 
 
 
-<div class="info">
+<div class="card">
 
-<div class="circle">⭐</div>
+<h3>⭐ আপনার রাশি</h3>
 
-<div>
-
-আপনার রাশি
-
-<br>
-
-<span class="value">
-
-মিথুন ♊
-
-</span>
-
-</div>
+<p class="big">
+♊ মিথুন
+</p>
 
 </div>
 
 
 
-<button class="btn share">
-
-💬 Share করুন
-
+<button class="share">
+🟢 Share করুন
 </button>
 
 
@@ -295,40 +187,30 @@ color:#2563eb!important;
 
 
 
+<div class="bottom">
 
+<div>
+🏠<br>
+হোম
+</div>
 
-<div class="menu">
+<div>
+⭐<br>
+রাশি
+</div>
 
+<div>
+🔗<br>
+শেয়ার
+</div>
 
-<a class="active" href="index.html">
-
-🏠<br>হোম
-
-</a>
-
-
-<a href="rashi.html">
-
-⭐<br>রাশি
-
-</a>
-
-
-<a>
-
-🔗<br>শেয়ার
-
-</a>
-
-
-<a href="more.html">
-
-⚙<br>আরও
-
-</a>
-
+<div>
+⚙️<br>
+আরও
+</div>
 
 </div>
+
 
 
 <script>
@@ -337,29 +219,14 @@ function calculateAge(){
 
 let date=document.getElementById("birthDate").value;
 
-if(!date){
-
-alert("জন্ম তারিখ দিন");
-
-return;
-
-}
-
-
-let birth=new Date(date);
-
-let today=new Date();
-
-
-let age=today.getFullYear()-birth.getFullYear();
-
+if(date){
 
 document.getElementById("age").innerHTML=
-age+" বছর";
-
+"বয়স হিসাব হয়েছে ✅";
 
 }
 
+}
 
 </script>
 
