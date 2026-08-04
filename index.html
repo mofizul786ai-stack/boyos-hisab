@@ -4,7 +4,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Birthday Reminder</title>
+<title>বয়স হিসাব</title>
 
 <style>
 
@@ -15,38 +15,111 @@ font-family:Arial,sans-serif;
 
 body{
 margin:0;
-background:linear-gradient(135deg,#2563eb,#60a5fa);
-min-height:100vh;
+background:#f8fafc;
 }
+
 
 .header{
-color:white;
+
 text-align:center;
-padding:35px 20px;
+padding:25px;
+
 }
 
-.header h1{
-font-size:30px;
+
+.topbar{
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px 20px;
+
 }
 
-.cake{
-font-size:70px;
+
+.icon{
+
+font-size:28px;
+
+}
+
+
+.logo{
+
+width:90px;
+height:90px;
+border-radius:25px;
+
+}
+
+
+h1{
+
+color:#2563eb;
+font-size:35px;
+
+}
+
+
+.subtitle{
+
+color:#555;
+font-size:18px;
+
 }
 
 
 .card{
 
 background:white;
-margin:0 20px 90px;
-padding:25px;
-border-radius:35px;
-box-shadow:0 10px 25px #0003;
+margin:15px 20px;
+padding:20px;
+border-radius:30px;
+box-shadow:0 5px 20px #0002;
 
 }
 
 
-.box{
+.datebox{
 
+background:#f1f5f9;
+padding:18px;
+border-radius:20px;
+font-size:18px;
+
+}
+
+
+input{
+
+border:none;
+background:none;
+font-size:18px;
+width:100%;
+
+}
+
+
+
+.btn{
+
+width:100%;
+padding:18px;
+margin-top:20px;
+border:none;
+border-radius:25px;
+background:#2563eb;
+color:white;
+font-size:18px;
+font-weight:bold;
+
+}
+
+
+.info{
+
+display:flex;
+align-items:center;
 background:#eff6ff;
 padding:20px;
 border-radius:25px;
@@ -55,27 +128,28 @@ margin-top:20px;
 }
 
 
-.box h2{
+.circle{
 
-color:#2563eb;
+font-size:35px;
+margin-right:20px;
 
 }
 
 
-button{
+.value{
 
-width:100%;
-padding:16px;
-margin-top:20px;
-border:none;
-border-radius:20px;
-background:#ec4899;
-color:white;
-font-size:18px;
+color:#2563eb;
+font-size:22px;
 font-weight:bold;
 
 }
 
+
+.share{
+
+background:#16a34a;
+
+}
 
 
 .menu{
@@ -87,7 +161,7 @@ right:0;
 background:white;
 display:flex;
 justify-content:space-around;
-padding:12px;
+padding:15px;
 border-radius:25px 25px 0 0;
 
 }
@@ -98,7 +172,6 @@ border-radius:25px 25px 0 0;
 text-decoration:none;
 color:#555;
 text-align:center;
-font-size:14px;
 
 }
 
@@ -118,13 +191,27 @@ color:#2563eb!important;
 <body>
 
 
+<div class="topbar">
+
+<div class="icon">☰</div>
+
+<img src="icon.png" class="logo">
+
+<div class="icon">↗</div>
+
+</div>
+
+
+
 <div class="header">
 
-<div class="cake">🎂</div>
 
-<h1>Birthday Reminder</h1>
+<h1>বয়স হিসাব</h1>
 
-<p>আপনার বিশেষ দিন মনে রাখুন ❤️</p>
+<p class="subtitle">
+জন্ম তারিখ নির্বাচন করুন
+</p>
+
 
 </div>
 
@@ -133,76 +220,80 @@ color:#2563eb!important;
 <div class="card">
 
 
-<div class="box">
+<div class="datebox">
 
-<h2>🎉 Welcome</h2>
+📅
 
-<p>
-Birthday Reminder App এ আপনাকে স্বাগতম।
-</p>
+<input type="date" id="birthDate">
 
 </div>
 
 
 
-<div class="box">
+<button class="btn" onclick="calculateAge()">
 
-<h2>🎂 Reminder</h2>
-
-<p>
-জন্মদিনের দিন আর কতদিন বাকি দেখুন।
-</p>
-
-<button onclick="location.href='birthday.html'">
-
-Birthday Reminder খুলুন
-
-</button>
-
-</div>
-
-
-
-<div class="box">
-
-<h2>⭐ রাশি</h2>
-
-<p>
-আপনার রাশি সম্পর্কে জানুন।
-</p>
-
-
-<button onclick="location.href='rashi.html'">
-
-রাশি দেখুন
+বয়স হিসাব করুন
 
 </button>
 
 
+
+<div class="info">
+
+<div class="circle">🎂</div>
+
+<div>
+
+আপনার বয়স
+
+<br>
+
+<span class="value" id="age">
+
+25 বছর 2 মাস 5 দিন
+
+</span>
+
+</div>
+
+
 </div>
 
 
 
-<div class="box">
+<div class="info">
 
-<h2>⚙ আরও</h2>
+<div class="circle">⭐</div>
 
-<p>
-App Settings এবং Information
-</p>
+<div>
+
+আপনার রাশি
+
+<br>
+
+<span class="value">
+
+মিথুন ♊
+
+</span>
+
+</div>
+
+</div>
 
 
-<button onclick="location.href='more.html'">
 
-আরও দেখুন
+<button class="btn share">
+
+💬 Share করুন
 
 </button>
 
 
+
 </div>
 
 
-</div>
 
 
 
@@ -211,41 +302,66 @@ App Settings এবং Information
 
 <a class="active" href="index.html">
 
-🏠<br>
-হোম
+🏠<br>হোম
 
 </a>
-
 
 
 <a href="rashi.html">
 
-⭐<br>
-রাশি
+⭐<br>রাশি
 
 </a>
 
 
+<a>
 
-<a href="birthday.html">
-
-🔔<br>
-Reminder
+🔗<br>শেয়ার
 
 </a>
-
 
 
 <a href="more.html">
 
-⚙<br>
-আরও
+⚙<br>আরও
 
 </a>
 
 
 </div>
 
+
+<script>
+
+function calculateAge(){
+
+let date=document.getElementById("birthDate").value;
+
+if(!date){
+
+alert("জন্ম তারিখ দিন");
+
+return;
+
+}
+
+
+let birth=new Date(date);
+
+let today=new Date();
+
+
+let age=today.getFullYear()-birth.getFullYear();
+
+
+document.getElementById("age").innerHTML=
+age+" বছর";
+
+
+}
+
+
+</script>
 
 
 </body>
