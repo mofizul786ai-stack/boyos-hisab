@@ -322,7 +322,11 @@ body:"আজ আপনার বিশেষ দিন ❤️"
 
 
 setInterval(checkBirthday,60000);
+let b = localStorage.getItem("birthday");
 
+if(b){
+ document.getElementById("birthDate").value = b;
+}
 
 </script>
 </body>
