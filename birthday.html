@@ -225,7 +225,11 @@ url:location.href
 });
 
 }
+let b = localStorage.getItem("birthday");
 
+if(b){
+ document.getElementById("birthDate").value = b;
+}
 
 
 </script>
