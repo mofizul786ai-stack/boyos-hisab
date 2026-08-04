@@ -187,7 +187,9 @@ onchange="saveBirthday()">
 🔔 Notification চালু করুন
 
 </button>
-
+<button onclick="enableNotification()">
+🔔 Notification চালু করুন
+</button>
 
 
 <button onclick="shareBirthday()">
@@ -353,7 +355,21 @@ alert(
 }
 
 }
+function testNotification(){
 
+if(Notification.permission=="granted"){
+
+new Notification("🎂 Birthday Reminder Test",{
+body:"Notification ঠিকভাবে কাজ করছে ❤️"
+});
+
+}else{
+
+alert("আগে Notification Allow করুন");
+
+}
+
+}
 
 
 
