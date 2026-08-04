@@ -231,6 +231,100 @@ url:location.href
 
 </script>
 
+<script>
 
+// Notification Permission
+function enableNotification(){
+
+if ("Notification" in window){
+
+Notification.requestPermission().then(function(permission){
+
+if(permission === "granted"){
+
+new Notification("🎂 Birthday Reminder",{
+body:"আপনার জন্মদিনের Reminder চালু হয়েছে ❤️",
+icon:"https://cdn-icons-png.flaticon.com/512/3174/3174767.png"
+});
+
+alert("Notification চালু হয়েছে ✅");
+
+}
+
+});
+
+}
+
+}
+
+
+// Birthday Share Card
+function shareBirthday(){
+
+let date = document.getElementById("birthDate").value;
+
+let text = 
+"🎂 Birthday Reminder\n\n"+
+"আমার জন্মদিন: "+date+
+"\n\nএই অ্যাপ দিয়ে জন্মদিন মনে রাখুন ❤️";
+
+
+if(navigator.share){
+
+navigator.share({
+
+title:"Birthday Reminder",
+
+text:text
+
+});
+
+}else{
+
+alert(text);
+
+}
+
+}
+
+
+// Auto Birthday Notification Check
+
+function checkBirthday(){
+
+let savedDate = localStorage.getItem("birthday");
+
+if(!savedDate) return;
+
+
+let today = new Date();
+
+let birthday = new Date(savedDate);
+
+
+if(
+today.getDate()==birthday.getDate() &&
+today.getMonth()==birthday.getMonth()
+){
+
+if(Notification.permission=="granted"){
+
+new Notification("🎉 শুভ জন্মদিন!",{
+
+body:"আজ আপনার বিশেষ দিন ❤️"
+
+});
+
+}
+
+}
+
+}
+
+
+setInterval(checkBirthday,60000);
+
+
+</script>
 </body>
 </html>
