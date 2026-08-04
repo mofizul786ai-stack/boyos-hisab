@@ -323,3 +323,132 @@ diff/(1000*60*60*24)
 document.getElementById("days").innerHTML=days;
 
 }
+// Notification
+
+function enableNotification(){
+
+if("Notification" in window){
+
+Notification.requestPermission()
+.then(function(permission){
+
+if(permission=="granted"){
+
+new Notification(
+"🎂 Birthday Reminder",
+{
+body:"আপনার Birthday Reminder চালু হয়েছে ❤️",
+icon:"icon.png"
+}
+);
+
+alert(
+"Notification চালু হয়েছে ✅"
+);
+
+}
+
+});
+
+}
+
+}
+
+
+
+
+// Share Birthday Card
+
+function shareBirthday(){
+
+let date =
+document.getElementById("birthDate").value;
+
+
+let message =
+"🎂 Birthday Reminder\n\n"+
+"আমার জন্মদিন: "+
+date+
+"\n\n❤️ Birthday Reminder App";
+
+
+if(navigator.share){
+
+navigator.share({
+
+title:"Birthday Reminder",
+
+text:message,
+
+url:location.href
+
+});
+
+}
+
+else{
+
+alert(message);
+
+}
+
+}
+
+
+
+
+// Check Birthday
+
+function checkBirthday(){
+
+let saved =
+localStorage.getItem("birthday");
+
+
+if(!saved) return;
+
+
+let today=new Date();
+
+let birth=new Date(saved);
+
+
+if(
+today.getDate()==birth.getDate()
+&&
+today.getMonth()==birth.getMonth()
+){
+
+
+if(Notification.permission=="granted"){
+
+
+new Notification(
+"🎉 শুভ জন্মদিন!",
+{
+body:"আজ আপনার বিশেষ দিন ❤️"
+}
+);
+
+
+}
+
+}
+
+
+}
+
+
+
+setInterval(
+checkBirthday,
+60000
+);
+
+
+</script>
+
+
+</body>
+
+</html>
