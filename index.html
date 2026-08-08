@@ -1,587 +1,864 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>বয়স হিসাব</title>
+<title>বয়স হিসাব</title>
+
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="সহজে আপনার বয়স ও রাশি হিসাব করুন">
 
 <style>
 
 *{
-    box-sizing:border-box;
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
 }
 
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f3f7ff;
-    color:#111;
-    padding-bottom:90px;
+  font-family:
+  "Noto Sans Bengali",
+  "Nirmala UI",
+  Arial,
+  sans-serif;
+
+  background:#eef4ff;
+  color:#111827;
+  padding-bottom:90px;
 }
 
 /* HEADER */
 
 .header{
-    background:linear-gradient(135deg,#2563eb,#60a5fa);
-    color:white;
-    padding:25px 20px 30px;
-    text-align:center;
-    border-radius:0 0 35px 35px;
+  background:linear-gradient(135deg,#2563eb,#3b82f6);
+  color:white;
+  text-align:center;
+
+  padding:30px 20px 55px;
+
+  border-radius:0 0 55px 55px;
+
+  box-shadow:
+  0 10px 30px rgba(37,99,235,.25);
 }
 
 .logo{
-    width:80px;
-    height:80px;
-    border-radius:20px;
-    object-fit:cover;
-    background:white;
+  width:90px;
+  height:90px;
+  object-fit:cover;
+
+  border-radius:25px;
+
+  background:white;
+
+  padding:5px;
+
+  box-shadow:
+  0 8px 20px rgba(0,0,0,.2);
 }
 
 .header h1{
-    font-size:32px;
-    margin:12px 0 5px;
+  margin-top:15px;
+  font-size:36px;
+  font-weight:800;
 }
 
 .header p{
-    margin:0;
-    font-size:17px;
+  margin-top:8px;
+  font-size:18px;
 }
 
-/* CONTAINER */
+/* MAIN */
 
 .container{
-    padding:20px;
+  max-width:700px;
+  margin:-25px auto 0;
+  padding:0 18px;
 }
 
-/* INPUT BOX */
+/* CARD */
 
-.box{
-    background:white;
-    padding:20px;
-    border-radius:30px;
-    box-shadow:0 8px 25px #00000012;
+.card{
+  background:white;
+
+  border-radius:35px;
+
+  padding:28px 22px;
+
+  margin-bottom:25px;
+
+  box-shadow:
+  0 10px 35px rgba(0,0,0,.08);
 }
 
-.box-title{
-    font-size:18px;
-    margin-bottom:12px;
+/* DATE */
+
+.label{
+  font-size:21px;
+  font-weight:700;
+  margin-bottom:15px;
 }
 
-input{
-    width:100%;
-    padding:18px;
-    border-radius:20px;
-    border:1px solid #ddd;
-    font-size:18px;
-    background:#f8f8f8;
+.date-input{
+  width:100%;
+
+  padding:20px;
+
+  border:2px solid #e5e7eb;
+
+  border-radius:25px;
+
+  font-size:20px;
+
+  background:#f9fafb;
+
+  outline:none;
+}
+
+.date-input:focus{
+  border-color:#2563eb;
 }
 
 /* BUTTON */
 
-.calculate{
-    width:100%;
-    padding:18px;
-    margin-top:20px;
-    border:none;
-    border-radius:30px;
-    background:#2563eb;
-    color:white;
-    font-size:20px;
-    font-weight:bold;
+.main-btn{
+  width:100%;
+
+  margin-top:25px;
+
+  border:none;
+
+  border-radius:50px;
+
+  padding:20px;
+
+  background:#2563eb;
+
+  color:white;
+
+  font-size:23px;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+  box-shadow:
+  0 8px 20px rgba(37,99,235,.25);
 }
 
-/* CARDS */
-
-.card{
-    background:#edf4ff;
-    padding:25px;
-    margin-top:25px;
-    border-radius:30px;
-    box-shadow:0 5px 20px #00000008;
+.main-btn:active{
+  transform:scale(.98);
 }
 
-.card h2{
-    font-size:22px;
-    margin:0 0 18px;
+/* RESULT */
+
+.result-card{
+  background:#eef4ff;
+
+  border-radius:30px;
+
+  padding:28px 20px;
+
+  margin-top:25px;
+
+  text-align:center;
 }
 
-.result{
-    font-size:30px;
-    font-weight:bold;
-    color:#2563eb;
-    line-height:1.5;
+.result-title{
+  font-size:22px;
+  font-weight:800;
 }
 
-.rashi{
-    font-size:32px;
-    font-weight:bold;
-    color:#2563eb;
+.age-result{
+  color:#2563eb;
+
+  font-size:30px;
+
+  font-weight:900;
+
+  margin-top:18px;
+}
+
+/* BIRTHDAY */
+
+.birthday{
+  margin-top:15px;
+
+  font-size:18px;
+
+  color:#374151;
+
+  line-height:1.7;
+}
+
+/* RASHI */
+
+.rashi-card{
+  background:#f3f7ff;
+
+  border-radius:30px;
+
+  padding:28px 20px;
+
+  text-align:center;
+
+  margin-top:20px;
+}
+
+.rashi-title{
+  font-size:22px;
+  font-weight:800;
+}
+
+.rashi-icon{
+  font-size:65px;
+  margin:12px 0;
+}
+
+.rashi-name{
+  color:#2563eb;
+  font-size:30px;
+  font-weight:900;
 }
 
 /* SHARE */
 
-.share{
-    width:100%;
-    padding:18px;
-    margin-top:25px;
-    border:none;
-    border-radius:30px;
-    background:#16b957;
-    color:white;
-    font-size:20px;
-    font-weight:bold;
+.share-btn{
+  width:100%;
+
+  border:none;
+
+  border-radius:50px;
+
+  padding:18px;
+
+  margin-top:20px;
+
+  background:#16a34a;
+
+  color:white;
+
+  font-size:21px;
+
+  font-weight:800;
 }
 
-/* BOTTOM NAVIGATION */
+/* AD */
 
-.bottom{
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
-    height:78px;
-    background:white;
-    display:flex;
-    justify-content:space-around;
-    align-items:center;
-    padding:8px 5px;
-    border-radius:25px 25px 0 0;
-    box-shadow:0 -5px 25px #00000018;
-    z-index:9999;
-}
-
-.bottom a{
-    flex:1;
-    text-align:center;
-    text-decoration:none;
-    color:#555;
-    font-size:15px;
-    line-height:1.4;
-}
-
-.bottom a span{
-    display:block;
-}
-
-.bottom a.active{
-    color:#2563eb;
-    font-weight:bold;
-}
-
-.bottom a:active{
-    transform:scale(.95);
-}
-
-/* MOBILE */
-
-@media(max-width:400px){
-
-    .header h1{
-        font-size:28px;
-    }
-
-    .result{
-        font-size:25px;
-    }
-
-    .rashi{
-        font-size:28px;
-    }
-
-}
 .ad-box{
-    margin-top:25px;
-    background:#ffffff;
-    border-radius:20px;
-    padding:10px;
-    text-align:center;
-    box-shadow:0 5px 20px #00000010;
+  background:white;
+
+  border-radius:30px;
+
+  padding:25px;
+
+  margin:25px 0;
+
+  text-align:center;
+
+  color:#9ca3af;
+
+  box-shadow:
+  0 5px 20px rgba(0,0,0,.05);
 }
 
 .ad-label{
-    font-size:11px;
-    color:#999;
-    margin-bottom:5px;
+  font-size:14px;
+  margin-bottom:15px;
 }
 
 .ad-content{
-    min-height:70px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#aaa;
-    font-size:14px;
-    background:#f8fafc;
-    border-radius:15px;
-}
-</style>
+  background:#f9fafb;
 
+  border-radius:20px;
+
+  padding:30px 10px;
+
+  font-size:18px;
+}
+
+/* BOTTOM NAV */
+
+.bottom{
+  position:fixed;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  height:78px;
+
+  background:rgba(255,255,255,.97);
+
+  backdrop-filter:blur(10px);
+
+  display:flex;
+
+  justify-content:space-around;
+
+  align-items:center;
+
+  border-radius:30px 30px 0 0;
+
+  box-shadow:
+  0 -5px 25px rgba(0,0,0,.10);
+
+  z-index:999;
+}
+
+.bottom a{
+  text-decoration:none;
+
+  color:#9ca3af;
+
+  text-align:center;
+
+  font-size:14px;
+
+  min-width:70px;
+}
+
+.bottom a.active{
+  color:#2563eb;
+}
+
+.bottom .icon{
+  display:block;
+
+  font-size:25px;
+
+  margin-bottom:3px;
+}
+
+/* SMALL SCREEN */
+
+@media(max-width:450px){
+
+  .header h1{
+    font-size:32px;
+  }
+
+  .header p{
+    font-size:17px;
+  }
+
+  .age-result{
+    font-size:25px;
+  }
+
+}
+
+</style>
 </head>
+
 
 <body>
 
 
 <!-- HEADER -->
 
-<div class="header">
+<header class="header">
 
-    <img src="icon.png" class="logo" alt="বয়স হিসাব">
+  <img
+    src="icon.png"
+    class="logo"
+    alt="বয়স হিসাব"
+  >
 
-    <h1>বয়স হিসাব</h1>
+  <h1>বয়স হিসাব</h1>
 
-    <p>জন্ম তারিখ নির্বাচন করুন</p>
+  <p>জন্ম তারিখ নির্বাচন করুন</p>
 
-</div>
+</header>
+
 
 
 <!-- MAIN -->
 
-<div class="container">
+<main class="container">
 
 
-    <!-- DATE BOX -->
+  <!-- DATE CARD -->
 
-    <div class="box">
+  <section class="card">
 
-        <div class="box-title">
-            📅 জন্ম তারিখ নির্বাচন করুন
-        </div>
+    <div class="label">
+      📅 জন্ম তারিখ নির্বাচন করুন
+    </div>
 
-        <input
-            type="date"
-            id="birthDate"
-        >
+    <input
+      type="date"
+      id="birthDate"
+      class="date-input"
+    >
 
-        <button
-            class="calculate"
-            onclick="calculateAge()"
-        >
-            বয়স হিসাব করুন
-        </button>
+    <button
+      class="main-btn"
+      onclick="calculateAge()"
+    >
+      বয়স হিসাব করুন
+    </button>
+
+
+    <!-- RESULT -->
+
+    <div
+      id="result"
+      class="result-card"
+      style="display:none;"
+    >
+
+      <div class="result-title">
+        🎂 আপনার বয়স
+      </div>
+
+      <div
+        id="ageResult"
+        class="age-result"
+      >
+      </div>
+
+      <div
+        id="birthdayResult"
+        class="birthday"
+      >
+      </div>
 
     </div>
 
 
-    <!-- AGE CARD -->
+    <!-- RASHI -->
 
-    <div class="card">
+    <div
+      id="rashiCard"
+      class="rashi-card"
+      style="display:none;"
+    >
 
-        <h2>🎂 আপনার বয়স</h2>
+      <div class="rashi-title">
+        ⭐ আপনার রাশি
+      </div>
 
-        <div
-            class="result"
-            id="age"
-        >
-            জন্ম তারিখ নির্বাচন করুন
-        </div>
+      <div
+        id="rashiIcon"
+        class="rashi-icon"
+      >
+        ⭐
+      </div>
 
-    </div>
-
-
-    <!-- RASHI CARD -->
-
-    <div class="card">
-
-        <h2>⭐ আপনার রাশি</h2>
-
-        <div
-            class="rashi"
-            id="rashi"
-        >
-            ⭐ রাশি দেখুন
-        </div>
+      <div
+        id="rashiName"
+        class="rashi-name"
+      >
+      </div>
 
     </div>
-<!-- Advertisement Area -->
-<div class="ad-box">
-    <div class="ad-label">Advertisement</div>
-    <div class="ad-content">
-        বিজ্ঞাপনের জায়গা
-    </div>
-</div>
+
 
     <!-- SHARE -->
 
     <button
-        class="share"
-        onclick="shareApp()"
+      class="share-btn"
+      onclick="shareApp()"
     >
-        🟢 Share করুন
+      🟢 Share করুন
     </button>
 
+  </section>
 
-</div>
+
+
+  <!-- ADVERTISEMENT -->
+
+  <div class="ad-box">
+
+    <div class="ad-label">
+      Advertisement
+    </div>
+
+    <div class="ad-content">
+      বিজ্ঞাপনের জায়গা
+    </div>
+
+  </div>
+
+
+</main>
+
 
 
 <!-- BOTTOM NAVIGATION -->
 
-<div class="bottom">
+<nav class="bottom">
 
-    <a
-        href="index.html"
-        class="active"
-    >
-        🏠
-        <span>হোম</span>
-    </a>
-
-
-    <a
-        href="rashi.html"
-    >
-        ⭐
-        <span>রাশি</span>
-    </a>
+  <a
+    href="index.html"
+    class="active"
+  >
+    <span class="icon">🏠</span>
+    হোম
+  </a>
 
 
-    <a
-        href="birthday.html"
-    >
-        🔔
-        <span>Reminder</span>
-    </a>
+  <a href="rashi.html">
+
+    <span class="icon">⭐</span>
+
+    রাশি
+
+  </a>
 
 
-    <a
-        href="more.html"
-    >
-        ⚙️
-        <span>আরও</span>
-    </a>
+  <a href="birthday.html">
 
-</div>
+    <span class="icon">🔔</span>
 
+    Reminder
+
+  </a>
+
+
+  <a href="more.html">
+
+    <span class="icon">⚙️</span>
+
+    আরও
+
+  </a>
+
+</nav>
+
+
+
+<!-- JAVASCRIPT -->
 
 <script>
 
+
 /* =========================
-   AGE + RASHI
+   AGE CALCULATOR
 ========================= */
 
 function calculateAge(){
 
-    let value =
-        document.getElementById("birthDate").value;
+  const input =
+    document.getElementById("birthDate");
 
-    if(!value){
+  const birth =
+    new Date(input.value);
 
-        alert("দয়া করে জন্ম তারিখ নির্বাচন করুন।");
+  if(!input.value){
 
-        return;
-    }
+    alert("দয়া করে জন্ম তারিখ নির্বাচন করুন।");
 
+    return;
+  }
 
-    let dob =
-        new Date(value + "T00:00:00");
 
-    let today =
-        new Date();
+  const today =
+    new Date();
 
 
-    if(dob > today){
+  if(birth > today){
 
-        alert("ভবিষ্যতের জন্ম তারিখ দেওয়া যাবে না।");
+    alert("জন্ম তারিখ ভবিষ্যতের হতে পারে না।");
 
-        return;
-    }
+    return;
+  }
 
 
-    /* AGE */
+  let years =
+    today.getFullYear()
+    - birth.getFullYear();
 
-    let years =
-        today.getFullYear() - dob.getFullYear();
+  let months =
+    today.getMonth()
+    - birth.getMonth();
 
-    let months =
-        today.getMonth() - dob.getMonth();
+  let days =
+    today.getDate()
+    - birth.getDate();
 
-    let days =
-        today.getDate() - dob.getDate();
 
+  if(days < 0){
 
-    if(days < 0){
+    months--;
 
-        months--;
+    const previousMonth =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        0
+      );
 
-        let previousMonth =
-            new Date(
-                today.getFullYear(),
-                today.getMonth(),
-                0
-            );
+    days +=
+      previousMonth.getDate();
+  }
 
-        days += previousMonth.getDate();
-    }
 
+  if(months < 0){
 
-    if(months < 0){
+    years--;
 
-        years--;
+    months += 12;
+  }
 
-        months += 12;
-    }
 
+  document.getElementById("ageResult").innerHTML =
+    years + " বছর " +
+    months + " মাস " +
+    days + " দিন";
 
-    document.getElementById("age").innerHTML =
-        years +
-        " বছর " +
-        months +
-        " মাস " +
-        days +
-        " দিন";
 
+  /* NEXT BIRTHDAY */
 
-    /* RASHI */
+  showNextBirthday(birth);
 
-    let day =
-        dob.getDate();
 
-    let month =
-        dob.getMonth() + 1;
+  /* RASHI */
 
+  showRashi(birth);
 
-    let rashi = "";
 
+  /* SHOW RESULT */
 
-    if(
-        (month == 3 && day >= 21) ||
-        (month == 4 && day <= 19)
-    ){
+  document.getElementById("result")
+    .style.display = "block";
 
-        rashi = "♈ মেষ";
+  document.getElementById("rashiCard")
+    .style.display = "block";
 
-    }
 
-    else if(
-        (month == 4 && day >= 20) ||
-        (month == 5 && day <= 20)
-    ){
+  /* SAVE DATE */
 
-        rashi = "♉ বৃষ";
-
-    }
-
-    else if(
-        (month == 5 && day >= 21) ||
-        (month == 6 && day <= 20)
-    ){
-
-        rashi = "♊ মিথুন";
-
-    }
-
-    else if(
-        (month == 6 && day >= 21) ||
-        (month == 7 && day <= 22)
-    ){
-
-        rashi = "♋ কর্কট";
-
-    }
-
-    else if(
-        (month == 7 && day >= 23) ||
-        (month == 8 && day <= 22)
-    ){
-
-        rashi = "♌ সিংহ";
-
-    }
-
-    else if(
-        (month == 8 && day >= 23) ||
-        (month == 9 && day <= 22)
-    ){
-
-        rashi = "♍ কন্যা";
-
-    }
-
-    else if(
-        (month == 9 && day >= 23) ||
-        (month == 10 && day <= 22)
-    ){
-
-        rashi = "♎ তুলা";
-
-    }
-
-    else if(
-        (month == 10 && day >= 23) ||
-        (month == 11 && day <= 21)
-    ){
-
-        rashi = "♏ বৃশ্চিক";
-
-    }
-
-    else if(
-        (month == 11 && day >= 22) ||
-        (month == 12 && day <= 21)
-    ){
-
-        rashi = "♐ ধনু";
-
-    }
-
-    else if(
-        (month == 12 && day >= 22) ||
-        (month == 1 && day <= 19)
-    ){
-
-        rashi = "♑ মকর";
-
-    }
-
-    else if(
-        (month == 1 && day >= 20) ||
-        (month == 2 && day <= 18)
-    ){
-
-        rashi = "♒ কুম্ভ";
-
-    }
-
-    else{
-
-        rashi = "♓ মীন";
-    }
-
-
-    document.getElementById("rashi").innerHTML =
-        rashi;
-
-
-    /* SAVE DATE */
-
-    localStorage.setItem(
-        "birthday",
-        value
-    );
+  localStorage.setItem(
+    "birthday",
+    input.value
+  );
 
 }
 
 
+
 /* =========================
-   LOAD SAVED DATE
+   NEXT BIRTHDAY
 ========================= */
 
-window.addEventListener("load",function(){
+function showNextBirthday(birth){
 
-    let saved =
-        localStorage.getItem("birthday");
+  const today =
+    new Date();
 
 
-    if(saved){
+  let next =
+    new Date(
+      today.getFullYear(),
+      birth.getMonth(),
+      birth.getDate()
+    );
 
-        document.getElementById("birthDate").value =
-            saved;
 
-        calculateAge();
-    }
+  if(next < today){
 
-});
+    next.setFullYear(
+      today.getFullYear() + 1
+    );
+
+  }
+
+
+  const diff =
+    next - today;
+
+
+  const days =
+    Math.floor(
+      diff /
+      (1000 * 60 * 60 * 24)
+    );
+
+
+  const hours =
+    Math.floor(
+      (diff /
+      (1000 * 60 * 60)) % 24
+    );
+
+
+  const minutes =
+    Math.floor(
+      (diff /
+      (1000 * 60)) % 60
+    );
+
+
+  document.getElementById(
+    "birthdayResult"
+  ).innerHTML =
+
+    "🎂 পরবর্তী জন্মদিন বাকি:<br>" +
+
+    "<b>" +
+    days +
+    " দিন " +
+    hours +
+    " ঘণ্টা " +
+    minutes +
+    " মিনিট" +
+    "</b>";
+
+}
+
+
+
+/* =========================
+   RASHI
+========================= */
+
+function showRashi(date){
+
+  const day =
+    date.getDate();
+
+  const month =
+    date.getMonth() + 1;
+
+
+  let name = "";
+  let icon = "";
+
+
+  if(
+    (month === 3 && day >= 21) ||
+    (month === 4 && day <= 19)
+  ){
+
+    name = "মেষ";
+    icon = "♈";
+
+  }
+
+  else if(
+    (month === 4 && day >= 20) ||
+    (month === 5 && day <= 20)
+  ){
+
+    name = "বৃষ";
+    icon = "♉";
+
+  }
+
+  else if(
+    (month === 5 && day >= 21) ||
+    (month === 6 && day <= 20)
+  ){
+
+    name = "মিথুন";
+    icon = "♊";
+
+  }
+
+  else if(
+    (month === 6 && day >= 21) ||
+    (month === 7 && day <= 22)
+  ){
+
+    name = "কর্কট";
+    icon = "♋";
+
+  }
+
+  else if(
+    (month === 7 && day >= 23) ||
+    (month === 8 && day <= 22)
+  ){
+
+    name = "সিংহ";
+    icon = "♌";
+
+  }
+
+  else if(
+    (month === 8 && day >= 23) ||
+    (month === 9 && day <= 22)
+  ){
+
+    name = "কন্যা";
+    icon = "♍";
+
+  }
+
+  else if(
+    (month === 9 && day >= 23) ||
+    (month === 10 && day <= 22)
+  ){
+
+    name = "তুলা";
+    icon = "♎";
+
+  }
+
+  else if(
+    (month === 10 && day >= 23) ||
+    (month === 11 && day <= 21)
+  ){
+
+    name = "বৃশ্চিক";
+    icon = "♏";
+
+  }
+
+  else if(
+    (month === 11 && day >= 22) ||
+    (month === 12 && day <= 21)
+  ){
+
+    name = "ধনু";
+    icon = "♐";
+
+  }
+
+  else if(
+    (month === 12 && day >= 22) ||
+    (month === 1 && day <= 19)
+  ){
+
+    name = "মকর";
+    icon = "♑";
+
+  }
+
+  else if(
+    (month === 1 && day >= 20) ||
+    (month === 2 && day <= 18)
+  ){
+
+    name = "কুম্ভ";
+    icon = "♒";
+
+  }
+
+  else{
+
+    name = "মীন";
+    icon = "♓";
+
+  }
+
+
+  document.getElementById(
+    "rashiName"
+  ).innerHTML = name;
+
+
+  document.getElementById(
+    "rashiIcon"
+  ).innerHTML = icon;
+
+}
+
 
 
 /* =========================
@@ -590,32 +867,85 @@ window.addEventListener("load",function(){
 
 function shareApp(){
 
-    const text =
-        "🎂 বয়স হিসাব App\n\n" +
-        "আমার বয়স হিসাব করুন ❤️\n\n" +
-        window.location.href;
+  const text =
 
-    if (navigator.share) {
+    "🎂 বয়স হিসাব App\n\n" +
 
-        navigator.share({
-            title: "বয়স হিসাব",
-            text: text
-        }).catch(function(error){
-            console.log("Share cancelled");
-        });
+    "আমার বয়স হিসাব করুন ❤️\n\n" +
 
-    } else {
+    window.location.href;
 
-        const whatsapp =
-            "https://wa.me/?text=" +
-            encodeURIComponent(text);
 
-        window.open(whatsapp, "_blank");
-    }
+  if(
+    navigator.share
+  ){
+
+    navigator.share({
+
+      title:"বয়স হিসাব",
+
+      text:text,
+
+      url:window.location.href
+
+    }).catch(function(){
+
+      console.log(
+        "Share cancelled"
+      );
+
+    });
+
+  }
+
+  else{
+
+    const whatsapp =
+
+      "https://wa.me/?text=" +
+
+      encodeURIComponent(text);
+
+
+    window.open(
+      whatsapp,
+      "_blank"
+    );
+
+  }
+
 }
+
+
+
+/* =========================
+   LOAD SAVED DATE
+========================= */
+
+window.addEventListener(
+  "DOMContentLoaded",
+  function(){
+
+    const saved =
+      localStorage.getItem(
+        "birthday"
+      );
+
+
+    if(saved){
+
+      document.getElementById(
+        "birthDate"
+      ).value = saved;
+
+    }
+
+  }
+);
+
 
 </script>
 
 
 </body>
-</html>
+          </html>
