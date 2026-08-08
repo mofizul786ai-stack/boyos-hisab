@@ -590,30 +590,28 @@ window.addEventListener("load",function(){
 
 function shareApp(){
 
-    let text =
-        "🎂 বয়স হিসাব App\n\n" +
-        "আমার বয়স হিসাব করুন ❤️";
+    const text =
+        "🎂 বয়স হিসাব App\n\n" +
+        "আমার বয়স হিসাব করুন ❤️\n\n" +
+        window.location.href;
 
-
-    if(navigator.share){
+    if (navigator.share) {
 
         navigator.share({
-
-            title:"বয়স হিসাব",
-
-            text:text,
-
-            url:location.href
-
+            title: "বয়স হিসাব",
+            text: text
+        }).catch(function(error){
+            console.log("Share cancelled");
         });
 
+    } else {
+
+        const whatsapp =
+            "https://wa.me/?text=" +
+            encodeURIComponent(text);
+
+        window.open(whatsapp, "_blank");
     }
-
-    else{
-
-        alert(text);
-    }
-
 }
 
 </script>
