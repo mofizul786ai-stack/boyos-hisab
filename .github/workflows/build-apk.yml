@@ -2,7 +2,6 @@ name: Build Boyos Hisab APK
 
 on:
   workflow_dispatch:
-
   push:
     branches:
       - main
@@ -14,53 +13,29 @@ jobs:
 
     steps:
 
-      # =========================
-      # 1. Checkout Repository
-      # =========================
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      # =========================
-      # 2. Setup Java
-      # =========================
       - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-
-      # =========================
-      # 3. Setup Gradle
-      # =========================
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.10.2"
 
-
-      # =========================
-      # 4. Create Android Project
-      # =========================
       - name: Create Android Project
         shell: bash
         run: |
 
           set -e
 
-          # -------------------------
-          # Create folders
-          # -------------------------
-
           mkdir -p app/src/main/java/com/mofizul786ai/boyoshisab
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/res/drawable
-
-
-          # -------------------------
-          # Copy App Logo
-          # -------------------------
 
           if [ -f "icon.png" ]; then
             cp icon.png app/src/main/res/drawable/app_icon.png
@@ -69,13 +44,7 @@ jobs:
             exit 1
           fi
 
-
-          # -------------------------
-          # settings.gradle
-          # -------------------------
-
           cat > settings.gradle <<'EOF'
-
           pluginManagement {
               repositories {
                   google()
@@ -86,7 +55,6 @@ jobs:
 
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-
               repositories {
                   google()
                   mavenCentral()
@@ -94,152 +62,78 @@ jobs:
           }
 
           rootProject.name = "BoyosHisab"
-
           include(":app")
-
           EOF
 
-
-          # -------------------------
-          # Root build.gradle
-          # -------------------------
-
           cat > build.gradle <<'EOF'
-
           plugins {
               id 'com.android.application' version '8.7.3' apply false
           }
-
           EOF
 
-
-          # -------------------------
-          # app/build.gradle
-          # -------------------------
-
           cat > app/build.gradle <<'EOF'
-
           plugins {
               id 'com.android.application'
           }
 
           android {
-
               namespace 'com.mofizul786ai.boyoshisab'
-
               compileSdk 35
 
               defaultConfig {
-
                   applicationId "com.mofizul786ai.boyoshisab"
-
                   minSdk 23
-
                   targetSdk 35
-
                   versionCode 1
-
                   versionName "1.0"
-
               }
           }
-
           EOF
-
-
-          # -------------------------
-          # styles.xml
-          # -------------------------
 
           cat > app/src/main/res/values/styles.xml <<'EOF'
-
           <resources>
-
-              <style
-                  name="AppTheme"
+              <style name="AppTheme"
                   parent="android:style/Theme.Material.Light.NoActionBar">
-
                   <item name="android:fontFamily">sans</item>
-
                   <item name="android:colorAccent">#2563EB</item>
-
                   <item name="android:statusBarColor">#2563EB</item>
-
                   <item name="android:navigationBarColor">#F3F7FF</item>
-
                   <item name="android:windowLightStatusBar">false</item>
-
               </style>
-
           </resources>
-
           EOF
 
-
-          # -------------------------
-          # AndroidManifest.xml
-          # -------------------------
-
           cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-          <manifest
-              xmlns:android="http://schemas.android.com/apk/res/android">
-
-              <!-- Internet permission -->
-              <uses-permission
-                  android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.INTERNET"/>
 
               <application
-
                   android:theme="@style/AppTheme"
-
                   android:label="বয়স হিসাব"
-
                   android:icon="@drawable/app_icon"
-
                   android:roundIcon="@drawable/app_icon"
-
                   android:usesCleartextTraffic="false"
-
                   android:hardwareAccelerated="true"
-
                   android:allowBackup="true"
-
                   android:supportsRtl="true">
 
                   <activity
-
                       android:name=".MainActivity"
-
                       android:screenOrientation="portrait"
-
                       android:exported="true">
 
                       <intent-filter>
-
-                          <action
-                              android:name="android.intent.action.MAIN" />
-
-                          <category
-                              android:name="android.intent.category.LAUNCHER" />
-
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
                       </intent-filter>
 
                   </activity>
-
               </application>
-
           </manifest>
-
           EOF
 
-
-          # -------------------------
-          # MainActivity.java
-          # -------------------------
-
           cat > app/src/main/java/com/mofizul786ai/boyoshisab/MainActivity.java <<'EOF'
-
           package com.mofizul786ai.boyoshisab;
 
           import android.app.Activity;
@@ -255,104 +149,50 @@ jobs:
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
-
                   super.onCreate(savedInstanceState);
 
                   webView = new WebView(this);
-
                   setContentView(webView);
-
-
-                  // -------------------------
-                  // WebView Settings
-                  // -------------------------
 
                   WebSettings settings = webView.getSettings();
 
                   settings.setJavaScriptEnabled(true);
-
                   settings.setDomStorageEnabled(true);
-
                   settings.setDatabaseEnabled(true);
-
                   settings.setAllowFileAccess(true);
-
                   settings.setAllowContentAccess(true);
 
                   settings.setBuiltInZoomControls(false);
-
                   settings.setDisplayZoomControls(false);
 
-                  settings.setLoadWithOverviewMode(false);
-
-                  settings.setUseWideViewPort(false);
-
-
-                  // -------------------------
-                  // WebView Clients
-                  // -------------------------
-
-                  webView.setWebViewClient(
-                      new WebViewClient()
-                  );
-
-                  webView.setWebChromeClient(
-                      new WebChromeClient()
-                  );
-
-
-                  // -------------------------
-                  // Load Boyos Hisab Website
-                  // -------------------------
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebChromeClient(new WebChromeClient());
 
                   webView.loadUrl(
                       "https://mofizul786ai-stack.github.io/boyos-hisab/"
                   );
               }
 
-
-              // -------------------------
-              // Android Back Button
-              // -------------------------
-
               @Override
               public void onBackPressed() {
-
                   if (webView.canGoBack()) {
-
                       webView.goBack();
-
                   } else {
-
                       super.onBackPressed();
-
                   }
               }
           }
-
           EOF
 
-
-      # =========================
-      # 5. Build APK
-      # =========================
       - name: Build APK
         run: |
           gradle assembleDebug --stacktrace
 
-
-      # =========================
-      # 6. Rename APK
-      # =========================
       - name: Rename APK
         run: |
           mkdir -p release
           cp app/build/outputs/apk/debug/app-debug.apk release/Boyos-Hisab.apk
 
-
-      # =========================
-      # 7. Upload APK
-      # =========================
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
