@@ -865,57 +865,25 @@ function showRashi(date){
    SHARE APP
 ========================= */
 
-function shareApp(){
+function shareApp() {
+    const text =
+        "🎂 বয়স হিসাব App\n\n" +
+        "আমার বয়স হিসাব করুন ❤️\n\n" +
+        window.location.href;
 
-  const text =
-
-    "🎂 বয়স হিসাব App\n\n" +
-
-    "আমার বয়স হিসাব করুন ❤️\n\n" +
-
-    window.location.href;
-
-
-  if(
-    navigator.share
-  ){
-
-    navigator.share({
-
-      title:"বয়স হিসাব",
-
-      text:text,
-
-      url:window.location.href
-
-    }).catch(function(){
-
-      console.log(
-        "Share cancelled"
-      );
-
-    });
-
-  }
-
-  else{
-
-    const whatsapp =
-
-      "https://wa.me/?text=" +
-
-      encodeURIComponent(text);
-
-
-    window.open(
-      whatsapp,
-      "_blank"
-    );
-
-  }
-
+    if (navigator.share) {
+        navigator.share({
+            title: "বয়স হিসাব",
+            text: text
+        }).catch(function () {
+            console.log("Share cancelled");
+        });
+    } else {
+        alert(text);
+    }
 }
-
+</script>
+  
 
 
 /* =========================
