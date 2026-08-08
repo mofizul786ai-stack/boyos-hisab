@@ -1,192 +1,746 @@
 <!DOCTYPE html>
-<html>
+<html lang="bn">
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>আরও</title>
+<title>আরও - বয়স হিসাব</title>
 
 <style>
 
 *{
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+    box-sizing:border-box;
 }
 
 body{
-margin:0;
-background:linear-gradient(135deg,#2563eb,#93c5fd);
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(135deg,#2563eb,#93c5fd);
+    padding-bottom:90px;
 }
 
+/* HEADER */
 
 .header{
-color:white;
-text-align:center;
-padding:40px 20px;
+    color:white;
+    text-align:center;
+    padding:35px 20px;
 }
 
 .header h1{
-font-size:32px;
+    font-size:32px;
+    margin:10px 0;
 }
 
-
-.card{
-background:white;
-margin:0 20px 80px;
-padding:25px;
-border-radius:30px;
-}
-
-
-.item{
-
-display:flex;
-align-items:center;
-gap:15px;
-background:#f1f5f9;
-padding:18px;
-margin:15px 0;
-border-radius:20px;
-font-size:20px;
-
-}
-
-
-.icon{
-font-size:30px;
-}
-
-
-button{
-
-width:100%;
-padding:16px;
-border:none;
-border-radius:20px;
-background:#2563eb;
-color:white;
-font-size:18px;
-margin-top:15px;
-
-}
-
-
-.menu{
-
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:white;
-display:flex;
-justify-content:space-around;
-padding:15px;
-border-radius:25px 25px 0 0;
-}
-.menu a{
-    flex:1;
-    text-align:center;
-    color:#555;
-    text-decoration:none;
+.header p{
+    margin:0;
     font-size:16px;
 }
 
-.menu a.active{
-    color:#2563eb;
+/* MAIN CARD */
+
+.card{
+    background:white;
+    margin:0 20px 30px;
+    padding:25px;
+    border-radius:35px;
+    box-shadow:0 10px 30px #0003;
+}
+
+/* MENU ITEM */
+
+.item{
+    display:flex;
+    align-items:center;
+    gap:18px;
+
+    background:#f1f5f9;
+
+    padding:20px;
+
+    margin:15px 0;
+
+    border-radius:22px;
+
+    font-size:20px;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.item:active{
+    transform:scale(.97);
+    background:#e0ecff;
+}
+
+.icon{
+    width:50px;
+    text-align:center;
+    font-size:32px;
+}
+
+.item-text{
+    flex:1;
+}
+
+.item-title{
+    font-size:20px;
     font-weight:bold;
+}
+
+.item-sub{
+    font-size:13px;
+    color:#777;
+    margin-top:4px;
+}
+
+/* CONTACT */
+
+.contact{
+    width:100%;
+    padding:17px;
+
+    border:none;
+    border-radius:25px;
+
+    background:#2563eb;
+    color:white;
+
+    font-size:19px;
+    font-weight:bold;
+
+    margin-top:15px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+
+    position:fixed;
+
+    left:0;
+    top:0;
+    right:0;
+    bottom:0;
+
+    background:#0008;
+
+    z-index:10000;
+
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+}
+
+.modal-box{
+    background:white;
+
+    width:100%;
+    max-width:420px;
+
+    max-height:80vh;
+
+    overflow:auto;
+
+    padding:25px;
+
+    border-radius:30px;
+}
+
+.modal-box h2{
+    color:#2563eb;
+    margin-top:0;
+}
+
+.close{
+    width:100%;
+
+    border:none;
+
+    padding:14px;
+
+    border-radius:18px;
+
+    background:#2563eb;
+
+    color:white;
+
+    font-size:17px;
+
+    margin-top:20px;
+}
+
+/* BOTTOM NAVIGATION */
+
+.bottom{
+    position:fixed;
+
+    bottom:0;
+    left:0;
+    right:0;
+
+    height:78px;
+
+    background:white;
+
+    display:flex;
+
+    justify-content:space-around;
+
+    align-items:center;
+
+    padding:8px 5px;
+
+    border-radius:25px 25px 0 0;
+
+    box-shadow:0 -5px 25px #0002;
+
+    z-index:9999;
+}
+
+.bottom a{
+    flex:1;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#555;
+
+    font-size:15px;
+
+    line-height:1.5;
+}
+
+.bottom a.active{
+    color:#2563eb;
+
+    font-weight:bold;
+}
+
+.bottom a:active{
+    transform:scale(.95);
 }
 
 </style>
 
 </head>
 
+
 <body>
 
 
+<!-- HEADER -->
+
 <div class="header">
 
-<h1>⚙ আরও</h1>
+<h1>⚙️ আরও</h1>
 
 <p>App Settings & Information</p>
 
 </div>
 
 
+<!-- MAIN CARD -->
+
 <div class="card">
 
 
-<div class="item">
+<!-- SETTINGS -->
+
+<div
+class="item"
+onclick="openSettings()"
+>
+
 <div class="icon">⚙️</div>
+
+<div class="item-text">
+
+<div class="item-title">
 Settings
 </div>
 
+<div class="item-sub">
+অ্যাপের সেটিংস
+</div>
 
-<div class="item">
+</div>
+
+</div>
+
+
+<!-- NOTIFICATION -->
+
+<div
+class="item"
+onclick="enableNotification()"
+>
+
 <div class="icon">🔔</div>
+
+<div class="item-text">
+
+<div class="item-title">
 Notification
 </div>
 
+<div class="item-sub">
+Notification চালু করুন
+</div>
 
-<div class="item">
+</div>
+
+</div>
+
+
+<!-- RATE -->
+
+<div
+class="item"
+onclick="rateApp()"
+>
+
 <div class="icon">⭐</div>
+
+<div class="item-text">
+
+<div class="item-title">
 Rate App
 </div>
 
+<div class="item-sub">
+অ্যাপটি ভালো লাগলে Rating দিন
+</div>
 
-<div class="item">
+</div>
+
+</div>
+
+
+<!-- SHARE -->
+
+<div
+class="item"
+onclick="shareApp()"
+>
+
 <div class="icon">📤</div>
+
+<div class="item-text">
+
+<div class="item-title">
 Share App
 </div>
 
+<div class="item-sub">
+বন্ধুদের সাথে অ্যাপ Share করুন
+</div>
 
-<div class="item">
+</div>
+
+</div>
+
+
+<!-- ABOUT -->
+
+<div
+class="item"
+onclick="openAbout()"
+>
+
 <div class="icon">📱</div>
+
+<div class="item-text">
+
+<div class="item-title">
 About App
 </div>
 
+<div class="item-sub">
+বয়স হিসাব অ্যাপ সম্পর্কে
+</div>
 
-<div class="item">
-<div class="icon">🔒</div>
-Privacy Policy
+</div>
+
 </div>
 
 
-<button>
-Contact Us
+<!-- PRIVACY -->
+
+<div
+class="item"
+onclick="openPrivacy()"
+>
+
+<div class="icon">🔒</div>
+
+<div class="item-text">
+
+<div class="item-title">
+Privacy Policy
+</div>
+
+<div class="item-sub">
+আপনার তথ্য ও Privacy
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CONTACT -->
+
+<button
+class="contact"
+onclick="contactUs()"
+>
+
+📞 Contact Us
+
 </button>
 
 
 </div>
 
 
+<!-- SETTINGS MODAL -->
 
-<div class="menu">
+<div
+class="modal"
+id="settingsModal"
+>
+
+<div class="modal-box">
+
+<h2>⚙️ Settings</h2>
+
+<p>
+🎂 জন্ম তারিখ Local Storage-এ সংরক্ষণ করা হয়।
+</p>
+
+<p>
+🔔 Notification আপনার অনুমতি অনুযায়ী কাজ করবে।
+</p>
+
+<p>
+🌐 অ্যাপটি Browser বা APK হিসেবে ব্যবহার করা যাবে।
+</p>
+
+<button
+class="close"
+onclick="closeModal('settingsModal')"
+>
+বন্ধ করুন
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ABOUT MODAL -->
+
+<div
+class="modal"
+id="aboutModal"
+>
+
+<div class="modal-box">
+
+<h2>📱 বয়স হিসাব</h2>
+
+<p>
+🎂 বয়স হিসাব অ্যাপ
+</p>
+
+<p>
+এই অ্যাপের মাধ্যমে আপনি সহজেই আপনার
+জন্ম তারিখ থেকে বছর, মাস ও দিন হিসেবে
+বয়স হিসাব করতে পারবেন।
+</p>
+
+<p>
+⭐ Auto রাশি
+</p>
+
+<p>
+🔔 Birthday Reminder
+</p>
+
+<p>
+🟢 Share Feature
+</p>
+
+<p>
+Version 1.0
+</p>
+
+<button
+class="close"
+onclick="closeModal('aboutModal')"
+>
+বন্ধ করুন
+</button>
+
+</div>
+
+</div>
+
+
+<!-- PRIVACY MODAL -->
+
+<div
+class="modal"
+id="privacyModal"
+>
+
+<div class="modal-box">
+
+<h2>🔒 Privacy Policy</h2>
+
+<p>
+<strong>বয়স হিসাব</strong> আপনার ব্যক্তিগত তথ্য
+নিরাপদ রাখার চেষ্টা করে।
+</p>
+
+<p>
+আপনার জন্ম তারিখ এই অ্যাপের Local Storage-এ
+সংরক্ষিত হতে পারে, যাতে পরবর্তীতে অ্যাপ খুললে
+আবার তারিখ দিতে না হয়।
+</p>
+
+<p>
+আপনার জন্ম তারিখ আমাদের কোনো Server-এ
+পাঠানো হয় না।
+</p>
+
+<p>
+Share করার সময় আপনি নিজে Share করলে
+শুধুমাত্র আপনার নির্বাচিত তথ্য Share হবে।
+</p>
+
+<button
+class="close"
+onclick="closeModal('privacyModal')"
+>
+বন্ধ করুন
+</button>
+
+</div>
+
+</div>
+
+
+<!-- BOTTOM NAVIGATION -->
+
+<div class="bottom">
 
 <a href="index.html">
+
 🏠
+
 <br>
+
 হোম
+
 </a>
+
 
 <a href="rashi.html">
+
 ⭐
+
 <br>
+
 রাশি
+
 </a>
+
 
 <a href="birthday.html">
+
 🔔
+
 <br>
+
 Reminder
+
 </a>
 
-<a href="more.html" class="active">
+
+<a
+href="more.html"
+class="active"
+>
+
 ⚙️
+
 <br>
+
 আরও
+
 </a>
 
 </div>
+
+
+<script>
+
+/* SETTINGS */
+
+function openSettings(){
+
+document.getElementById("settingsModal").style.display="flex";
+
+}
+
+
+/* ABOUT */
+
+function openAbout(){
+
+document.getElementById("aboutModal").style.display="flex";
+
+}
+
+
+/* PRIVACY */
+
+function openPrivacy(){
+
+document.getElementById("privacyModal").style.display="flex";
+
+}
+
+
+/* CLOSE MODAL */
+
+function closeModal(id){
+
+document.getElementById(id).style.display="none";
+
+}
+
+
+/* NOTIFICATION */
+
+function enableNotification(){
+
+if(!("Notification" in window)){
+
+alert("এই Browser Notification Support করে না।");
+
+return;
+
+}
+
+Notification.requestPermission()
+.then(function(permission){
+
+if(permission==="granted"){
+
+new Notification(
+"🎂 বয়স হিসাব",
+{
+body:"Notification সফলভাবে চালু হয়েছে ❤️",
+icon:"icon.png"
+}
+);
+
+}else{
+
+alert("Notification Permission দেওয়া হয়নি।");
+
+}
+
+});
+
+}
+
+
+/* SHARE APP */
+
+function shareApp(){
+
+let message =
+"🎂 বয়স হিসাব App\n\n"+
+"সহজে আপনার বয়স বছর, মাস ও দিন হিসেবে হিসাব করুন ❤️\n\n"+
+location.href;
+
+
+if(navigator.share){
+
+navigator.share({
+
+title:"বয়স হিসাব App",
+
+text:message,
+
+url:location.href
+
+});
+
+}else{
+
+navigator.clipboard.writeText(location.href)
+.then(function(){
+
+alert("App Link Copy হয়েছে ✅");
+
+})
+.catch(function(){
+
+alert(message);
+
+});
+
+}
+
+}
+
+
+/* RATE APP */
+
+function rateApp(){
+
+alert(
+"⭐ Play Store-এ App প্রকাশ করার পরে এখানে Rating Link যোগ করা যাবে।"
+);
+
+}
+
+
+/* CONTACT */
+
+function contactUs(){
+
+alert(
+"📞 Contact Us\n\n"+
+"যোগাযোগের তথ্য এখানে পরে যোগ করা যাবে।"
+);
+
+}
+
+
+/* CLOSE MODAL WHEN CLICK OUTSIDE */
+
+window.onclick=function(event){
+
+if(event.target.classList.contains("modal")){
+
+event.target.style.display="none";
+
+}
+
+};
+
+</script>
 
 
 </body>
