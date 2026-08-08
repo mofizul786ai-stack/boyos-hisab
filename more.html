@@ -83,7 +83,18 @@ justify-content:space-around;
 padding:15px;
 border-radius:25px 25px 0 0;
 }
+.menu a{
+    flex:1;
+    text-align:center;
+    color:#555;
+    text-decoration:none;
+    font-size:16px;
+}
 
+.menu a.active{
+    color:#2563eb;
+    font-weight:bold;
+}
 
 </style>
 
@@ -151,13 +162,29 @@ Contact Us
 
 <div class="menu">
 
-<div>🏠<br>হোম</div>
+<a href="index.html">
+🏠
+<br>
+হোম
+</a>
 
-<div>⭐<br>রাশি</div>
+<a href="rashi.html">
+⭐
+<br>
+রাশি
+</a>
 
-<div>🔔<br>Reminder</div>
+<a href="birthday.html">
+🔔
+<br>
+Reminder
+</a>
 
-<div>⚙️<br>আরও</div>
+<a href="more.html" class="active">
+⚙️
+<br>
+আরও
+</a>
 
 </div>
 
