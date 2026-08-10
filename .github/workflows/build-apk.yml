@@ -1,4 +1,4 @@
-name: Build Boyos Hisab Release APK and AAB
+name: Build Boyos Hisab APK and AAB
 
 on:
   workflow_dispatch:
@@ -13,26 +13,33 @@ jobs:
 
     steps:
 
-      # 1. Checkout
+      # ==========================================
+      # 1. Checkout Repository
+      # ==========================================
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # 2. Java 17
+      # ==========================================
+      # 2. Setup Java 17
+      # ==========================================
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-          cache: gradle
 
 
-      # 3. Android SDK
+      # ==========================================
+      # 3. Setup Android SDK
+      # ==========================================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
 
-      # 4. Android SDK packages
+      # ==========================================
+      # 4. Install Android SDK
+      # ==========================================
       - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses || true
@@ -43,13 +50,17 @@ jobs:
             "build-tools;35.0.0"
 
 
-      # 5. Create Android project
+      # ==========================================
+      # 5. Create Android Project
+      # ==========================================
       - name: Create Android Project
         run: |
           set -e
 
           rm -rf BoyosHisab
 
+          mkdir -p BoyosHisab
+          mkdir -p BoyosHisab/app
           mkdir -p BoyosHisab/app/src/main/java/com/boyoshisab/app
           mkdir -p BoyosHisab/app/src/main/res/layout
           mkdir -p BoyosHisab/app/src/main/res/values
@@ -57,7 +68,9 @@ jobs:
           mkdir -p BoyosHisab/app/src/main/assets
 
 
-      # 6. AndroidX
+      # ==========================================
+      # 6. Enable AndroidX
+      # ==========================================
       - name: Enable AndroidX
         working-directory: BoyosHisab
         run: |
@@ -71,8 +84,10 @@ jobs:
           EOF
 
 
-      # 7. settings.gradle
-      - name: Create Settings
+      # ==========================================
+      # 7. Gradle Settings
+      # ==========================================
+      - name: Create Gradle Settings
         working-directory: BoyosHisab
         run: |
           cat > settings.gradle <<'EOF'
@@ -86,6 +101,7 @@ jobs:
 
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
               repositories {
                   google()
                   mavenCentral()
@@ -93,12 +109,15 @@ jobs:
           }
 
           rootProject.name = "BoyosHisab"
+
           include(":app")
           EOF
 
 
-      # 8. Root build.gradle
-      - name: Create Root Gradle
+      # ==========================================
+      # 8. Root Build Gradle
+      # ==========================================
+      - name: Create Root Build Gradle
         working-directory: BoyosHisab
         run: |
           cat > build.gradle <<'EOF'
@@ -108,8 +127,10 @@ jobs:
           EOF
 
 
-      # 9. App build.gradle
-      - name: Create App Gradle
+      # ==========================================
+      # 9. App Build Gradle
+      # ==========================================
+      - name: Create App Build Gradle
         working-directory: BoyosHisab
         run: |
           cat > app/build.gradle <<'EOF'
@@ -119,12 +140,14 @@ jobs:
 
           android {
               namespace 'com.boyoshisab.app'
+
               compileSdk 35
 
               defaultConfig {
                   applicationId "com.boyoshisab.app"
                   minSdk 23
                   targetSdk 35
+
                   versionCode 1
                   versionName "1.0"
               }
@@ -138,51 +161,70 @@ jobs:
                   release {
                       minifyEnabled false
                       shrinkResources false
-
-                      // Release APK install করার জন্য debug signing
-                      // Play Store-এর জন্য পরে নিজের upload key লাগবে
-                      signingConfig signingConfigs.debug
                   }
               }
           }
 
           dependencies {
+
               implementation 'com.google.android.gms:play-services-ads:24.5.0'
+
           }
           EOF
 
 
-      # 10. AndroidManifest.xml
-      - name: Create Manifest
+      # ==========================================
+      # 10. Android Manifest
+      # ==========================================
+      - name: Create Android Manifest
         working-directory: BoyosHisab
         run: |
           cat > app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
 
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          <manifest
+              xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission android:name="android.permission.INTERNET"/>
+              <!-- Internet -->
+              <uses-permission
+                  android:name="android.permission.INTERNET" />
+
+              <uses-permission
+                  android:name="android.permission.ACCESS_NETWORK_STATE" />
+
 
               <application
                   android:allowBackup="true"
-                  android:label="বয়স হিসাব"
                   android:icon="@drawable/icon"
-                  android:roundIcon="@drawable/icon"
+                  android:label="বয়স হিসাব"
                   android:supportsRtl="true"
                   android:theme="@style/AppTheme">
 
-                  <!-- নিজের AdMob App ID -->
+                  <!-- ================================= -->
+                  <!-- YOUR ADMOB APP ID -->
+                  <!-- ================================= -->
+
                   <meta-data
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
-                      android:value="ca-app-pub-4629127200038980~5718715166"/>
+                      android:value="ca-app-pub-4629127200038980~5718715166" />
+
+
+                  <!-- ================================= -->
+                  <!-- Main Activity -->
+                  <!-- ================================= -->
 
                   <activity
                       android:name=".MainActivity"
                       android:exported="true">
 
                       <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
+
+                          <action
+                              android:name="android.intent.action.MAIN" />
+
+                          <category
+                              android:name="android.intent.category.LAUNCHER" />
+
                       </intent-filter>
 
                   </activity>
@@ -193,8 +235,10 @@ jobs:
           EOF
 
 
+      # ==========================================
       # 11. App Theme
-      - name: Create Theme
+      # ==========================================
+      - name: Create App Theme
         working-directory: BoyosHisab
         run: |
           cat > app/src/main/res/values/styles.xml <<'EOF'
@@ -207,13 +251,22 @@ jobs:
                   parent="android:style/Theme.Material.Light.NoActionBar">
 
                   <item name="android:fontFamily">sans</item>
-                  <item name="android:colorAccent">#2196F3</item>
 
-                  <item name="android:statusBarColor">#1565C0</item>
+                  <item name="android:colorAccent">
+                      #2196F3
+                  </item>
 
-                  <item name="android:navigationBarColor">#FFFFFF</item>
+                  <item name="android:statusBarColor">
+                      #1565C0
+                  </item>
 
-                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:navigationBarColor">
+                      #FFFFFF
+                  </item>
+
+                  <item name="android:windowLightStatusBar">
+                      false
+                  </item>
 
               </style>
 
@@ -221,7 +274,9 @@ jobs:
           EOF
 
 
+      # ==========================================
       # 12. Main Layout
+      # ==========================================
       - name: Create Main Layout
         working-directory: BoyosHisab
         run: |
@@ -231,29 +286,46 @@ jobs:
           <LinearLayout
               xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:ads="http://schemas.android.com/apk/res-auto"
+
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="#FFFFFF">
+
+              android:orientation="vertical">
+
+
+              <!-- Website -->
 
               <WebView
                   android:id="@+id/webView"
+
                   android:layout_width="match_parent"
                   android:layout_height="0dp"
-                  android:layout_weight="1"/>
+
+                  android:layout_weight="1" />
+
+
+              <!-- ================================= -->
+              <!-- YOUR ADMOB BANNER -->
+              <!-- ================================= -->
 
               <com.google.android.gms.ads.AdView
+
                   android:id="@+id/adView"
+
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+
                   ads:adSize="BANNER"
-                  ads:adUnitId="ca-app-pub-4629127200038980/4349793174"/>
+
+                  ads:adUnitId="ca-app-pub-4629127200038980/4349793174" />
 
           </LinearLayout>
           EOF
 
 
-      # 13. MainActivity.java
+      # ==========================================
+      # 13. MainActivity
+      # ==========================================
       - name: Create MainActivity
         working-directory: BoyosHisab
         run: |
@@ -270,52 +342,105 @@ jobs:
           import com.google.android.gms.ads.AdView;
           import com.google.android.gms.ads.MobileAds;
 
+
           public class MainActivity extends Activity {
 
               private WebView webView;
               private AdView adView;
 
+
               @Override
               protected void onCreate(Bundle savedInstanceState) {
+
                   super.onCreate(savedInstanceState);
 
                   setContentView(R.layout.activity_main);
 
-                  // AdMob initialize
-                  MobileAds.initialize(this, initializationStatus -> {});
 
+                  // =================================
+                  // Initialize AdMob
+                  // =================================
+
+                  MobileAds.initialize(
+                      this,
+                      initializationStatus -> {}
+                  );
+
+
+                  // =================================
                   // WebView
+                  // =================================
+
                   webView = findViewById(R.id.webView);
 
-                  WebSettings settings = webView.getSettings();
+                  WebSettings settings =
+                      webView.getSettings();
 
                   settings.setJavaScriptEnabled(true);
+
                   settings.setDomStorageEnabled(true);
+
                   settings.setDatabaseEnabled(true);
+
                   settings.setAllowFileAccess(true);
+
                   settings.setAllowContentAccess(true);
 
-                  webView.setWebViewClient(new WebViewClient());
+                  settings.setBuiltInZoomControls(false);
 
-                  webView.loadUrl("file:///android_asset/index.html");
+                  settings.setDisplayZoomControls(false);
 
-                  // Banner Ad
+
+                  webView.setWebViewClient(
+                      new WebViewClient()
+                  );
+
+
+                  // =================================
+                  // Load Website
+                  // =================================
+
+                  webView.loadUrl(
+                      "file:///android_asset/index.html"
+                  );
+
+
+                  // =================================
+                  // AdMob Banner
+                  // =================================
+
                   adView = findViewById(R.id.adView);
 
-                  AdRequest adRequest = new AdRequest.Builder().build();
+                  AdRequest adRequest =
+                      new AdRequest.Builder()
+                          .build();
 
                   adView.loadAd(adRequest);
               }
 
+
+              // =====================================
+              // Back Button
+              // =====================================
+
               @Override
               public void onBackPressed() {
 
-                  if (webView != null && webView.canGoBack()) {
+                  if (webView != null &&
+                      webView.canGoBack()) {
+
                       webView.goBack();
+
                   } else {
+
                       super.onBackPressed();
                   }
               }
+
+
+              // =====================================
+              // Pause Ad
+              // =====================================
 
               @Override
               protected void onPause() {
@@ -327,6 +452,11 @@ jobs:
                   super.onPause();
               }
 
+
+              // =====================================
+              // Resume Ad
+              // =====================================
+
               @Override
               protected void onResume() {
 
@@ -336,6 +466,11 @@ jobs:
                       adView.resume();
                   }
               }
+
+
+              // =====================================
+              // Destroy
+              // =====================================
 
               @Override
               protected void onDestroy() {
@@ -354,93 +489,214 @@ jobs:
           EOF
 
 
-      # 14. Copy website files
+      # ==========================================
+      # 14. Copy Website Files
+      # ==========================================
       - name: Copy Website Files
         run: |
           set -e
 
-          # Main page
+          echo "Copying website files..."
+
+
+          # --------------------------------------
+          # Main HTML
+          # --------------------------------------
+
           if [ -f "index.html" ]; then
-            cp index.html BoyosHisab/app/src/main/assets/
+              cp index.html \
+                 BoyosHisab/app/src/main/assets/index.html
           fi
 
-          # Other pages
-          for file in birthday.html rashi.html more.html; do
-            if [ -f "$file" ]; then
-              cp "$file" BoyosHisab/app/src/main/assets/
-            fi
+
+          # --------------------------------------
+          # Other HTML pages
+          # --------------------------------------
+
+          for file in \
+              birthday.html \
+              rashi.html \
+              more.html; do
+
+              if [ -f "$file" ]; then
+
+                  cp "$file" \
+                     BoyosHisab/app/src/main/assets/
+
+              fi
+
           done
 
-          # JavaScript / CSS / images folders
-          for folder in css js images assets img fonts; do
-            if [ -d "$folder" ]; then
-              cp -r "$folder" BoyosHisab/app/src/main/assets/
-            fi
-          done
+
+          # --------------------------------------
+          # JavaScript
+          # --------------------------------------
+
+          if [ -f "script.js" ]; then
+
+              cp script.js \
+                 BoyosHisab/app/src/main/assets/
+
+          fi
 
 
-      # 15. Copy App Icon
-      - name: Copy App Icon
-        run: |
+          # --------------------------------------
+          # CSS
+          # --------------------------------------
+
+          if [ -f "style.css" ]; then
+
+              cp style.css \
+                 BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          # --------------------------------------
+          # Service Worker
+          # --------------------------------------
+
+          if [ -f "service-worker.js" ]; then
+
+              cp service-worker.js \
+                 BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          # --------------------------------------
+          # Manifest
+          # --------------------------------------
+
+          if [ -f "manifest.json" ]; then
+
+              cp manifest.json \
+                 BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          # --------------------------------------
+          # Icon
+          # --------------------------------------
+
           if [ -f "icon.png" ]; then
-            cp icon.png BoyosHisab/app/src/main/res/drawable/icon.png
-          else
-            echo "icon.png not found"
+
+              cp icon.png \
+                 BoyosHisab/app/src/main/res/drawable/icon.png
+
+              cp icon.png \
+                 BoyosHisab/app/src/main/assets/icon.png
+
           fi
 
 
-      # 16. Check important files
-      - name: Check Project
-        run: |
-          echo "========== PROJECT FILES =========="
-          find BoyosHisab -maxdepth 5 -type f | sort
+          # --------------------------------------
+          # Copy folders
+          # --------------------------------------
 
-          echo "========== WEBSITE FILES =========="
-          ls -la BoyosHisab/app/src/main/assets/ || true
+          for folder in css js images img fonts assets; do
+
+              if [ -d "$folder" ]; then
+
+                  cp -r "$folder" \
+                     BoyosHisab/app/src/main/assets/
+
+              fi
+
+          done
 
 
-      # 17. Gradle Wrapper
-      - name: Prepare Gradle
+          echo "Website files copied successfully."
+
+
+      # ==========================================
+      # 15. Create Gradle Wrapper
+      # ==========================================
+      - name: Create Gradle Wrapper
         working-directory: BoyosHisab
         run: |
-          gradle wrapper --gradle-version 8.10.2
+          set -e
+
+          gradle wrapper \
+            --gradle-version 8.10.2
+
+          chmod +x gradlew
 
 
-      # 18. Build Release APK
+      # ==========================================
+      # 16. Check Android Project
+      # ==========================================
+      - name: Check Gradle Project
+        working-directory: BoyosHisab
+        run: |
+          ./gradlew --version
+
+          ./gradlew tasks
+
+
+      # ==========================================
+      # 17. Build Release APK
+      # ==========================================
       - name: Build Release APK
         working-directory: BoyosHisab
         run: |
           set -e
-          ./gradlew clean
-          ./gradlew assembleRelease --stacktrace
+
+          ./gradlew \
+            assembleRelease \
+            --stacktrace \
+            --no-daemon
 
 
-      # 19. Build Release AAB
+      # ==========================================
+      # 18. Build Release AAB
+      # ==========================================
       - name: Build Release AAB
         working-directory: BoyosHisab
         run: |
           set -e
-          ./gradlew bundleRelease --stacktrace
+
+          ./gradlew \
+            bundleRelease \
+            --stacktrace \
+            --no-daemon
 
 
-      # 20. Prepare output
-      - name: Prepare Release Files
+      # ==========================================
+      # 19. Prepare Output
+      # ==========================================
+      - name: Prepare APK and AAB
         run: |
           set -e
 
           mkdir -p output
 
-          cp BoyosHisab/app/build/outputs/apk/release/app-release.apk \
-             output/Boyos-Hisab-Release-APK.apk
 
-          cp BoyosHisab/app/build/outputs/bundle/release/app-release.aab \
-             output/Boyos-Hisab-Release-AAB.aab
+          # Release APK
 
-          echo "========== OUTPUT =========="
+          cp \
+            BoyosHisab/app/build/outputs/apk/release/app-release.apk \
+            output/Boyos-Hisab-Release-APK.apk
+
+
+          # Release AAB
+
+          cp \
+            BoyosHisab/app/build/outputs/bundle/release/app-release.aab \
+            output/Boyos-Hisab-Release-AAB.aab
+
+
+          echo "===================================="
+          echo "BUILD FILES"
+          echo "===================================="
+
           ls -lh output/
 
 
-      # 21. Upload Release APK
+      # ==========================================
+      # 20. Upload APK
+      # ==========================================
       - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
@@ -448,9 +704,21 @@ jobs:
           path: output/Boyos-Hisab-Release-APK.apk
 
 
-      # 22. Upload Release AAB
+      # ==========================================
+      # 21. Upload AAB
+      # ==========================================
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: Boyos-Hisab-Release-AAB
           path: output/Boyos-Hisab-Release-AAB.aab
+
+
+      # ==========================================
+      # 22. Upload Both
+      # ==========================================
+      - name: Upload APK and AAB Together
+        uses: actions/upload-artifact@v4
+        with:
+          name: Boyos-Hisab-APK-AAB
+          path: output/
