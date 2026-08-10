@@ -882,7 +882,21 @@ function shareApp() {
         alert(text);
     }
 }
-  
+  /* =========================
+   LOAD SAVED DATE
+========================= */
+
+window.addEventListener("DOMContentLoaded", function(){
+
+  const saved = localStorage.getItem("birthday");
+
+  if(saved){
+
+    document.getElementById("birthDate").value = saved;
+
+  }
+
+});
 </script>
 
 
