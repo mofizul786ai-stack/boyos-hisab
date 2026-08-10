@@ -14,34 +14,66 @@ jobs:
 
     steps:
 
-      # --------------------------------
+      # ==============================
       # 1. Checkout
-      # --------------------------------
+      # ==============================
+
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # --------------------------------
-      # 2. Setup Java
-      # --------------------------------
+      # ==============================
+      # 2. Java 17
+      # ==============================
+
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-          cache: gradle
 
 
-      # --------------------------------
-      # 3. Setup Android SDK
-      # --------------------------------
+      # ==============================
+      # 3. Android SDK
+      # ==============================
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
 
-      # --------------------------------
-      # 4. Create Android folders
-      # --------------------------------
+      # ==============================
+      # 4. Install Gradle 8.10.2
+      # ==============================
+
+      - name: Install Gradle
+        shell: bash
+        run: |
+
+          set -e
+
+          echo "Downloading Gradle 8.10.2..."
+
+          wget -q \
+          https://services.gradle.org/distributions/gradle-8.10.2-bin.zip \
+          -O /tmp/gradle.zip
+
+          unzip -q \
+          /tmp/gradle.zip \
+          -d /opt
+
+          export GRADLE_HOME=/opt/gradle-8.10.2
+
+          echo "$GRADLE_HOME/bin" >> $GITHUB_PATH
+
+          echo "Gradle installed."
+
+          gradle --version
+
+
+      # ==============================
+      # 5. Create Android Project
+      # ==============================
+
       - name: Create Android Project
         shell: bash
         run: |
@@ -50,9 +82,19 @@ jobs:
 
           echo "Creating Android project..."
 
-          mkdir -p app/src/main/java/com/mofizul786ai/boyoshisab
-          mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/drawable
+
+          # --------------------------------
+          # Create folders
+          # --------------------------------
+
+          mkdir -p \
+          app/src/main/java/com/mofizul786ai/boyoshisab
+
+          mkdir -p \
+          app/src/main/res/values
+
+          mkdir -p \
+          app/src/main/res/drawable
 
 
           # --------------------------------
@@ -61,20 +103,23 @@ jobs:
 
           if [ ! -f "icon.png" ]; then
 
-            echo "ERROR: icon.png not found in repository!"
+            echo "ERROR: icon.png not found!"
+
+            echo "Please upload icon.png to repository root."
 
             exit 1
 
           fi
 
 
-          cp icon.png \
+          cp \
+          icon.png \
           app/src/main/res/drawable/app_icon.png
 
 
-          # --------------------------------
+          # ==============================
           # settings.gradle
-          # --------------------------------
+          # ==============================
 
           cat > settings.gradle <<'EOF'
 
@@ -117,9 +162,9 @@ jobs:
           EOF
 
 
-          # --------------------------------
+          # ==============================
           # Root build.gradle
-          # --------------------------------
+          # ==============================
 
           cat > build.gradle <<'EOF'
 
@@ -134,9 +179,9 @@ jobs:
           EOF
 
 
-          # --------------------------------
+          # ==============================
           # App build.gradle
-          # --------------------------------
+          # ==============================
 
           cat > app/build.gradle <<'EOF'
 
@@ -156,7 +201,7 @@ jobs:
 
               defaultConfig {
 
-                  applicationId 'com.mofizul786ai.boyoshisab'
+                  applicationId "com.mofizul786ai.boyoshisab"
 
                   minSdk 23
 
@@ -193,9 +238,9 @@ jobs:
           EOF
 
 
-          # --------------------------------
+          # ==============================
           # styles.xml
-          # --------------------------------
+          # ==============================
 
           cat > app/src/main/res/values/styles.xml <<'EOF'
 
@@ -230,9 +275,9 @@ jobs:
           EOF
 
 
-          # --------------------------------
+          # ==============================
           # AndroidManifest.xml
-          # --------------------------------
+          # ==============================
 
           cat > app/src/main/AndroidManifest.xml <<'EOF'
 
@@ -294,9 +339,9 @@ jobs:
           EOF
 
 
-          # --------------------------------
+          # ==============================
           # MainActivity.java
-          # --------------------------------
+          # ==============================
 
           cat > app/src/main/java/com/mofizul786ai/boyoshisab/MainActivity.java <<'EOF'
 
@@ -304,15 +349,10 @@ jobs:
 
 
           import android.app.Activity;
-
           import android.os.Bundle;
-
           import android.webkit.WebChromeClient;
-
           import android.webkit.WebSettings;
-
           import android.webkit.WebView;
-
           import android.webkit.WebViewClient;
 
 
@@ -329,7 +369,6 @@ jobs:
 
 
                   webView = new WebView(this);
-
 
                   setContentView(webView);
 
@@ -395,32 +434,49 @@ jobs:
           echo "Android project created successfully."
 
 
-      # --------------------------------
-      # 5. Install Gradle
-      # --------------------------------
+      # ==============================
+      # 6. Check Project
+      # ==============================
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.10.2"
+      - name: Check Android Project
+        shell: bash
+        run: |
+
+          echo "Checking files..."
+
+          ls -la
+
+          echo "Checking app..."
+
+          ls -la app
+
+          echo "Checking Gradle..."
+
+          gradle --version
 
 
-      # --------------------------------
-      # 6. Build Debug APK
-      # --------------------------------
+      # ==============================
+      # 7. Build Debug APK
+      # ==============================
 
       - name: Build Debug APK
+        shell: bash
         run: |
+
+          set -e
 
           gradle :app:assembleDebug --stacktrace
 
 
-      # --------------------------------
-      # 7. Prepare APK
-      # --------------------------------
+      # ==============================
+      # 8. Prepare APK
+      # ==============================
 
       - name: Prepare APK
+        shell: bash
         run: |
+
+          set -e
 
           mkdir -p release
 
@@ -429,22 +485,28 @@ jobs:
           release/Boyos-Hisab.apk
 
 
-      # --------------------------------
-      # 8. Build Release AAB
-      # --------------------------------
+      # ==============================
+      # 9. Build Release AAB
+      # ==============================
 
       - name: Build Release AAB
+        shell: bash
         run: |
+
+          set -e
 
           gradle :app:bundleRelease --stacktrace
 
 
-      # --------------------------------
-      # 9. Prepare AAB
-      # --------------------------------
+      # ==============================
+      # 10. Prepare AAB
+      # ==============================
 
       - name: Prepare AAB
+        shell: bash
         run: |
+
+          set -e
 
           mkdir -p release
 
@@ -453,9 +515,9 @@ jobs:
           release/Boyos-Hisab.aab
 
 
-      # --------------------------------
-      # 10. Upload APK
-      # --------------------------------
+      # ==============================
+      # 11. Upload APK
+      # ==============================
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -469,9 +531,9 @@ jobs:
           if-no-files-found: error
 
 
-      # --------------------------------
-      # 11. Upload AAB
-      # --------------------------------
+      # ==============================
+      # 12. Upload AAB
+      # ==============================
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
