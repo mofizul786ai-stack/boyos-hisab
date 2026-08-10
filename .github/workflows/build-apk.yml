@@ -184,9 +184,9 @@ jobs:
           }
           EOF
 
-      - name: Build APK
+          - name: Build AAB
         run: |
-          gradle assembleDebug --stacktrace
+          gradle bundleRelease --stacktrace
 
       - name: Rename APK
         run: |
