@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build Signed Release APK and AAB
+    name: Build Release APK and AAB
     runs-on: ubuntu-latest
 
     steps:
@@ -128,7 +128,7 @@ jobs:
 
 
       # ==========================================
-      # 9. Generate Signing Key
+      # 9. Generate Release Signing Key
       # ==========================================
       - name: Generate Release Signing Key
         working-directory: BoyosHisab
@@ -146,7 +146,7 @@ jobs:
             -keypass BoyosHisab2026 \
             -dname "CN=Boyos Hisab, OU=App, O=Boyos Hisab, L=Guwahati, ST=Assam, C=IN"
 
-          echo "Release signing key created."
+          echo "Signing key created."
 
 
       # ==========================================
@@ -169,7 +169,6 @@ jobs:
                   applicationId "com.boyoshisab.app"
                   minSdk 23
                   targetSdk 35
-
                   versionCode 1
                   versionName "1.0"
               }
@@ -224,7 +223,9 @@ jobs:
                   android:supportsRtl="true"
                   android:theme="@style/AppTheme">
 
-                  <!-- YOUR ADMOB APP ID -->
+                  <!--
+                      YOUR ADMOB APP ID
+                  -->
                   <meta-data
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
                       android:value="ca-app-pub-4629127200038980~5718715166" />
@@ -272,12 +273,12 @@ jobs:
                       #2196F3
                   </item>
 
-                  <item name="android:navigationBarColor">
-                      #FFFFFF
-                  </item>
-
                   <item name="android:statusBarColor">
                       #1565C0
+                  </item>
+
+                  <item name="android:navigationBarColor">
+                      #FFFFFF
                   </item>
 
                   <item name="android:windowLightStatusBar">
@@ -304,14 +305,19 @@ jobs:
               xmlns:ads="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:orientation="vertical"
+              android:background="#FFFFFF">
 
               <WebView
                   android:id="@+id/webView"
                   android:layout_width="match_parent"
                   android:layout_height="0dp"
-                  android:layout_weight="1" />
+                  android:layout_weight="1"
+                  android:overScrollMode="never" />
 
+              <!--
+                  REAL ADMOB BANNER
+              -->
               <com.google.android.gms.ads.AdView
                   android:id="@+id/adView"
                   android:layout_width="match_parent"
@@ -353,17 +359,19 @@ jobs:
 
                   setContentView(R.layout.activity_main);
 
-                  // ==============================
+                  // =================================
                   // Initialize AdMob
-                  // ==============================
+                  // =================================
+
                   MobileAds.initialize(
                           this,
                           initializationStatus -> {}
                   );
 
-                  // ==============================
+                  // =================================
                   // WebView
-                  // ==============================
+                  // =================================
+
                   webView = findViewById(R.id.webView);
 
                   WebSettings settings = webView.getSettings();
@@ -374,18 +382,22 @@ jobs:
                   settings.setAllowFileAccess(true);
                   settings.setAllowContentAccess(true);
 
-                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebViewClient(
+                          new WebViewClient()
+                  );
 
-                  // ==============================
+                  // =================================
                   // Load Website
-                  // ==============================
+                  // =================================
+
                   webView.loadUrl(
                           "file:///android_asset/index.html"
                   );
 
-                  // ==============================
-                  // Banner Ad
-                  // ==============================
+                  // =================================
+                  // AdMob Banner
+                  // =================================
+
                   adView = findViewById(R.id.adView);
 
                   AdRequest adRequest =
@@ -393,6 +405,7 @@ jobs:
 
                   adView.loadAd(adRequest);
               }
+
 
               @Override
               public void onBackPressed() {
@@ -409,6 +422,7 @@ jobs:
                   }
               }
 
+
               @Override
               protected void onPause() {
 
@@ -419,6 +433,7 @@ jobs:
                   super.onPause();
               }
 
+
               @Override
               protected void onResume() {
 
@@ -428,6 +443,7 @@ jobs:
                       adView.resume();
                   }
               }
+
 
               @Override
               protected void onDestroy() {
@@ -447,21 +463,21 @@ jobs:
 
 
       # ==========================================
-      # 15. Copy App Icon
+      # 15. Copy App Logo
       # ==========================================
-      - name: Copy App Icon
+      - name: Copy App Logo
         run: |
           set -e
 
-          if [ -f "icon.png" ]; then
-            cp icon.png \
-              BoyosHisab/app/src/main/res/drawable/app_icon.png
-
-            echo "App icon copied."
-          else
-            echo "ERROR: icon.png not found in repository."
+          if [ ! -f "icon.png" ]; then
+            echo "ERROR: icon.png not found!"
             exit 1
           fi
+
+          cp icon.png \
+            BoyosHisab/app/src/main/res/drawable/app_icon.png
+
+          echo "App logo copied successfully."
 
 
       # ==========================================
@@ -471,64 +487,104 @@ jobs:
         run: |
           set -e
 
-          if [ -f "index.html" ]; then
-            cp index.html \
-              BoyosHisab/app/src/main/assets/index.html
-          else
-            echo "ERROR: index.html not found."
+          if [ ! -f "index.html" ]; then
+            echo "ERROR: index.html not found!"
             exit 1
           fi
 
-          for folder in css js images assets img fonts; do
+          cp index.html \
+            BoyosHisab/app/src/main/assets/index.html
 
-            if [ -d "$folder" ]; then
 
-              cp -r "$folder" \
-                BoyosHisab/app/src/main/assets/
+      # ==========================================
+      # 17. Copy Other HTML Files
+      # ==========================================
+      - name: Copy HTML Pages
+        run: |
+          set -e
 
-            fi
-
-          done
-
-          for file in birthday.html rashi.html more.html; do
+          for file in \
+            birthday.html \
+            rashi.html \
+            more.html
+          do
 
             if [ -f "$file" ]; then
 
               cp "$file" \
                 BoyosHisab/app/src/main/assets/
 
+              echo "Copied $file"
+
             fi
 
           done
 
+
+      # ==========================================
+      # 18. Copy Website Folders
+      # ==========================================
+      - name: Copy Website Folders
+        run: |
+          set -e
+
+          for folder in \
+            css \
+            js \
+            images \
+            assets \
+            img \
+            fonts
+          do
+
+            if [ -d "$folder" ]; then
+
+              cp -r "$folder" \
+                BoyosHisab/app/src/main/assets/
+
+              echo "Copied $folder"
+
+            fi
+
+          done
+
+
+      # ==========================================
+      # 19. Copy Service Worker
+      # ==========================================
+      - name: Copy Service Worker
+        run: |
           if [ -f "service-worker.js" ]; then
 
             cp service-worker.js \
               BoyosHisab/app/src/main/assets/
 
+            echo "service-worker.js copied."
+
           fi
 
 
       # ==========================================
-      # 17. Create Gradle Wrapper
+      # 20. Create Gradle Wrapper
       # ==========================================
       - name: Create Gradle Wrapper
         working-directory: BoyosHisab
         run: |
-          gradle wrapper --gradle-version 8.10.2
+          gradle wrapper \
+            --gradle-version 8.10.2
 
 
       # ==========================================
-      # 18. Check Gradle
+      # 21. Check Gradle
       # ==========================================
-      - name: Check Gradle Project
+      - name: Check Gradle
         working-directory: BoyosHisab
         run: |
           ./gradlew --version
 
 
       # ==========================================
-      # 19. Build Release APK
+      # 22. Build Signed Release APK
       # ==========================================
       - name: Build Release APK
         working-directory: BoyosHisab
@@ -542,7 +598,7 @@ jobs:
 
 
       # ==========================================
-      # 20. Build Release AAB
+      # 23. Build Signed Release AAB
       # ==========================================
       - name: Build Release AAB
         working-directory: BoyosHisab
@@ -556,9 +612,9 @@ jobs:
 
 
       # ==========================================
-      # 21. Verify APK
+      # 24. Verify Signed APK
       # ==========================================
-      - name: Verify Signed APK
+      - name: Verify APK Signature
         working-directory: BoyosHisab
         run: |
           set -e
@@ -566,24 +622,44 @@ jobs:
           APK="app/build/outputs/apk/release/app-release.apk"
 
           if [ ! -f "$APK" ]; then
-            echo "ERROR: Release APK not found."
+            echo "ERROR: APK not found!"
             exit 1
           fi
 
-          $ANDROID_HOME/build-tools/35.0.0/apksigner \
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" \
             verify \
             --verbose \
             "$APK"
 
-          echo "Signed APK verified successfully."
+          echo "APK signature verified."
 
 
       # ==========================================
-      # 22. Prepare Output
+      # 25. Check AAB
       # ==========================================
-      - name: Prepare APK and AAB
+      - name: Check AAB
+        working-directory: BoyosHisab
         run: |
           set -e
+
+          AAB="app/build/outputs/bundle/release/app-release.aab"
+
+          if [ ! -f "$AAB" ]; then
+            echo "ERROR: AAB not found!"
+            exit 1
+          fi
+
+          echo "AAB found successfully."
+
+
+      # ==========================================
+      # 26. Prepare Output
+      # ==========================================
+      - name: Prepare Release Files
+        run: |
+          set -e
+
+          rm -rf output
 
           mkdir -p output
 
@@ -595,11 +671,15 @@ jobs:
             BoyosHisab/app/build/outputs/bundle/release/app-release.aab \
             output/Boyos-Hisab-Release.aab
 
+          echo "===================================="
+          echo "Release files:"
+          echo "===================================="
+
           ls -lh output/
 
 
       # ==========================================
-      # 23. Upload APK and AAB
+      # 27. Upload APK + AAB
       # ==========================================
       - name: Upload Release APK and AAB
         uses: actions/upload-artifact@v4
@@ -610,15 +690,16 @@ jobs:
 
 
       # ==========================================
-      # 24. Finish
+      # 28. Build Complete
       # ==========================================
       - name: Build Complete
         run: |
           echo "=========================================="
-          echo " BOYOS HISAB BUILD SUCCESSFUL"
+          echo "       BOYOS HISAB BUILD SUCCESS"
           echo "=========================================="
-          echo "Signed Release APK created."
-          echo "Signed Release AAB created."
-          echo "AdMob App ID configured."
-          echo "AdMob Ad Unit configured."
+          echo "Signed APK: YES"
+          echo "Signed AAB: YES"
+          echo "App Logo: YES"
+          echo "AdMob App ID: YES"
+          echo "AdMob Banner ID: YES"
           echo "=========================================="
