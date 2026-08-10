@@ -1,4 +1,4 @@
-name: Build Boyos Hisab
+name: Build Boyos Hisab with AdMob
 
 on:
   workflow_dispatch:
@@ -13,91 +13,206 @@ jobs:
 
     steps:
 
+      # =========================
+      # CHECKOUT
+      # =========================
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
+
+      # =========================
+      # JAVA 17
+      # =========================
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
+
+      # =========================
+      # ANDROID SDK
+      # =========================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+
+      # =========================
+      # INSTALL ANDROID PLATFORM
+      # =========================
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+
+      # =========================
+      # SETUP GRADLE
+      # =========================
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.10.2"
 
+
+      # =========================
+      # CREATE ANDROID PROJECT
+      # =========================
       - name: Create Android Project
         shell: bash
         run: |
+
           set -e
 
+          echo "Creating Android project..."
+
+          # Directories
+
           mkdir -p app/src/main/java/com/mofizul786ai/boyoshisab
+
           mkdir -p app/src/main/res/values
+
           mkdir -p app/src/main/res/drawable
 
-          if [ ! -f "icon.png" ]; then
-            echo "ERROR: icon.png not found in repository root!"
+          mkdir -p app/src/main/res/mipmap-hdpi
+
+          mkdir -p app/src/main/res/mipmap-mdpi
+
+          mkdir -p app/src/main/res/mipmap-xhdpi
+
+          mkdir -p app/src/main/res/mipmap-xxhdpi
+
+          mkdir -p app/src/main/res/mipmap-xxxhdpi
+
+
+          # =========================
+          # COPY APP ICON
+          # =========================
+
+          if [ -f "icon.png" ]; then
+
+            cp icon.png app/src/main/res/drawable/app_icon.png
+
+          else
+
+            echo "ERROR: icon.png not found in repository root."
+
             exit 1
+
           fi
 
-          cp icon.png app/src/main/res/drawable/app_icon.png
+
+          # =========================
+          # SETTINGS GRADLE
+          # =========================
 
           cat > settings.gradle <<'EOF'
+
           pluginManagement {
+
               repositories {
+
                   google()
+
                   mavenCentral()
+
                   gradlePluginPortal()
+
               }
+
           }
+
 
           dependencyResolutionManagement {
+
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
               repositories {
+
                   google()
+
                   mavenCentral()
+
               }
+
           }
+
 
           rootProject.name = "BoyosHisab"
+
           include(":app")
+
           EOF
+
+
+          # =========================
+          # ROOT BUILD GRADLE
+          # =========================
 
           cat > build.gradle <<'EOF'
+
           plugins {
+
               id 'com.android.application' version '8.7.3' apply false
+
           }
+
           EOF
+
+
+          # =========================
+          # APP BUILD GRADLE
+          # =========================
 
           cat > app/build.gradle <<'EOF'
+
           plugins {
+
               id 'com.android.application'
+
           }
+
 
           android {
+
               namespace 'com.mofizul786ai.boyoshisab'
+
               compileSdk 35
 
+
               defaultConfig {
+
                   applicationId "com.mofizul786ai.boyoshisab"
+
                   minSdk 23
+
                   targetSdk 35
-                  versionCode 1
-                  versionName "1.0"
+
+                  versionCode 2
+
+                  versionName "1.1"
+
               }
+
           }
+
+
+          dependencies {
+
+              implementation 'com.google.android.gms:play-services-ads:24.5.0'
+
+          }
+
           EOF
 
-          cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.useAndroidX=true
-          EOF
+
+          # =========================
+          # STYLES
+          # =========================
 
           cat > app/src/main/res/values/styles.xml <<'EOF'
+
           <resources>
 
               <style
@@ -105,142 +220,581 @@ jobs:
                   parent="android:style/Theme.Material.Light.NoActionBar">
 
                   <item name="android:fontFamily">sans</item>
+
                   <item name="android:colorAccent">#2563EB</item>
+
                   <item name="android:statusBarColor">#2563EB</item>
+
                   <item name="android:navigationBarColor">#F3F7FF</item>
+
                   <item name="android:windowLightStatusBar">false</item>
+
+                  <item name="android:windowActionModeOverlay">true</item>
 
               </style>
 
           </resources>
+
           EOF
 
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission android:name="android.permission.INTERNET"/>
+          # =========================
+          # ANDROID MANIFEST
+          # =========================
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+
+          <manifest
+              xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+              <!-- Internet for website and AdMob -->
+
+              <uses-permission
+                  android:name="android.permission.INTERNET" />
+
+
+              <!-- Advertising ID -->
+
+              <uses-permission
+                  android:name="com.google.android.gms.permission.AD_ID" />
+
 
               <application
+
                   android:theme="@style/AppTheme"
+
                   android:label="বয়স হিসাব"
+
                   android:icon="@drawable/app_icon"
+
                   android:roundIcon="@drawable/app_icon"
+
+                  android:usesCleartextTraffic="false"
+
                   android:hardwareAccelerated="true"
+
                   android:allowBackup="true"
+
                   android:supportsRtl="true">
 
+
+                  <!-- =========================
+                       ADMOB APP ID
+                       ========================= -->
+
+                  <meta-data
+
+                      android:name="com.google.android.gms.ads.APPLICATION_ID"
+
+                      android:value="ca-app-pub-4629127200038980~5718715156" />
+
+
                   <activity
+
                       android:name=".MainActivity"
+
                       android:screenOrientation="portrait"
+
                       android:exported="true">
+
 
                       <intent-filter>
 
                           <action
-                              android:name="android.intent.action.MAIN"/>
+                              android:name="android.intent.action.MAIN" />
 
                           <category
-                              android:name="android.intent.category.LAUNCHER"/>
+                              android:name="android.intent.category.LAUNCHER" />
 
                       </intent-filter>
 
+
                   </activity>
+
 
               </application>
 
+
           </manifest>
+
           EOF
 
+
+          # =========================
+          # MAIN ACTIVITY
+          # =========================
+
           cat > app/src/main/java/com/mofizul786ai/boyoshisab/MainActivity.java <<'EOF'
+
           package com.mofizul786ai.boyoshisab;
 
+
           import android.app.Activity;
+
           import android.os.Bundle;
-          import android.webkit.WebChromeClient;
+
+          import android.graphics.Color;
+
+          import android.view.Gravity;
+
+          import android.view.View;
+
+          import android.view.ViewGroup;
+
           import android.webkit.WebSettings;
+
           import android.webkit.WebView;
+
           import android.webkit.WebViewClient;
+
+          import android.webkit.WebChromeClient;
+
+          import android.widget.LinearLayout;
+
+
+          import com.google.android.gms.ads.AdRequest;
+
+          import com.google.android.gms.ads.AdSize;
+
+          import com.google.android.gms.ads.AdView;
+
+          import com.google.android.gms.ads.MobileAds;
+
 
           public class MainActivity extends Activity {
 
+
               private WebView webView;
 
+              private AdView adView;
+
+
+              // =========================
+              // ADMOB BANNER AD UNIT ID
+              // =========================
+
+              private static final String BANNER_AD_UNIT_ID =
+                      "ca-app-pub-4629127200038980/434973174";
+
+
               @Override
+
               protected void onCreate(Bundle savedInstanceState) {
+
                   super.onCreate(savedInstanceState);
+
+
+                  // =========================
+                  // INITIALIZE ADMOB
+                  // =========================
+
+                  MobileAds.initialize(this, initializationStatus -> {
+
+                      loadBannerAd();
+
+                  });
+
+
+                  // =========================
+                  // MAIN LAYOUT
+                  // =========================
+
+                  LinearLayout mainLayout =
+                          new LinearLayout(this);
+
+                  mainLayout.setOrientation(
+                          LinearLayout.VERTICAL);
+
+                  mainLayout.setBackgroundColor(
+                          Color.WHITE);
+
+
+                  // =========================
+                  // WEBVIEW
+                  // =========================
 
                   webView = new WebView(this);
 
-                  setContentView(webView);
 
-                  WebSettings settings = webView.getSettings();
+                  WebSettings settings =
+                          webView.getSettings();
+
 
                   settings.setJavaScriptEnabled(true);
+
                   settings.setDomStorageEnabled(true);
+
                   settings.setDatabaseEnabled(true);
+
                   settings.setAllowFileAccess(true);
+
                   settings.setAllowContentAccess(true);
 
                   settings.setBuiltInZoomControls(false);
+
                   settings.setDisplayZoomControls(false);
 
+                  settings.setLoadWithOverviewMode(false);
+
+                  settings.setUseWideViewPort(false);
+
+
                   webView.setWebViewClient(
-                      new WebViewClient()
-                  );
+                          new WebViewClient());
+
 
                   webView.setWebChromeClient(
-                      new WebChromeClient()
-                  );
+                          new WebChromeClient());
+
+
+                  webView.setBackgroundColor(
+                          Color.WHITE);
+
+
+                  // =========================
+                  // LOAD WEBSITE
+                  // =========================
 
                   webView.loadUrl(
                       "https://mofizul786ai-stack.github.io/boyos-hisab/"
                   );
+
+
+                  // WebView takes remaining space
+
+                  LinearLayout.LayoutParams
+                          webParams =
+                          new LinearLayout.LayoutParams(
+                                  ViewGroup.LayoutParams.MATCH_PARENT,
+                                  0,
+                                  1.0f
+                          );
+
+
+                  mainLayout.addView(
+                          webView,
+                          webParams);
+
+
+                  // =========================
+                  // ADMOB BANNER CONTAINER
+                  // =========================
+
+                  LinearLayout adContainer =
+                          new LinearLayout(this);
+
+
+                  adContainer.setGravity(
+                          Gravity.CENTER);
+
+                  adContainer.setBackgroundColor(
+                          Color.WHITE);
+
+
+                  LinearLayout.LayoutParams
+                          adContainerParams =
+                          new LinearLayout.LayoutParams(
+                                  ViewGroup.LayoutParams.MATCH_PARENT,
+                                  ViewGroup.LayoutParams.WRAP_CONTENT
+                          );
+
+
+                  mainLayout.addView(
+                          adContainer,
+                          adContainerParams);
+
+
+                  // =========================
+                  // SET CONTENT VIEW
+                  // =========================
+
+                  setContentView(mainLayout);
+
+
+                  // Save container
+
+                  adContainer.setTag(
+                          "ad_container");
+
               }
 
+
+              // =========================
+              // LOAD BANNER
+              // =========================
+
+              private void loadBannerAd() {
+
+
+                  LinearLayout mainLayout =
+                          (LinearLayout) webView.getParent();
+
+
+                  if (mainLayout == null) {
+
+                      return;
+
+                  }
+
+
+                  LinearLayout adContainer =
+                          null;
+
+
+                  for (int i = 0;
+                       i < mainLayout.getChildCount();
+                       i++) {
+
+
+                      View child =
+                              mainLayout.getChildAt(i);
+
+
+                      if ("ad_container".equals(
+                              child.getTag())) {
+
+
+                          adContainer =
+                                  (LinearLayout) child;
+
+
+                          break;
+
+                      }
+
+                  }
+
+
+                  if (adContainer == null) {
+
+                      return;
+
+                  }
+
+
+                  // Create AdView
+
+                  adView =
+                          new AdView(this);
+
+
+                  adView.setAdSize(
+                          AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                                  this,
+                                  AdSize.FULL_WIDTH
+                          )
+                  );
+
+
+                  adView.setAdUnitId(
+                          BANNER_AD_UNIT_ID
+                  );
+
+
+                  adContainer.removeAllViews();
+
+
+                  adContainer.addView(
+                          adView
+                  );
+
+
+                  // =========================
+                  // LOAD AD
+                  // =========================
+
+                  AdRequest adRequest =
+                          new AdRequest.Builder()
+                                  .build();
+
+
+                  adView.loadAd(
+                          adRequest
+                  );
+
+              }
+
+
+              // =========================
+              // BACK BUTTON
+              // =========================
+
               @Override
+
               public void onBackPressed() {
 
-                  if (webView.canGoBack()) {
+
+                  if (webView != null &&
+                      webView.canGoBack()) {
+
 
                       webView.goBack();
 
+
                   } else {
+
 
                       super.onBackPressed();
 
                   }
+
               }
+
+
+              // =========================
+              // PAUSE AD
+              // =========================
+
+              @Override
+
+              protected void onPause() {
+
+                  if (adView != null) {
+
+                      adView.pause();
+
+                  }
+
+                  super.onPause();
+
+              }
+
+
+              // =========================
+              // RESUME AD
+              // =========================
+
+              @Override
+
+              protected void onResume() {
+
+                  super.onResume();
+
+                  if (adView != null) {
+
+                      adView.resume();
+
+                  }
+
+              }
+
+
+              // =========================
+              // DESTROY AD
+              // =========================
+
+              @Override
+
+              protected void onDestroy() {
+
+                  if (adView != null) {
+
+                      adView.destroy();
+
+                  }
+
+                  if (webView != null) {
+
+                      webView.destroy();
+
+                  }
+
+                  super.onDestroy();
+
+              }
+
           }
+
           EOF
 
+
+          echo "Android project created successfully."
+
+
+      # =========================
+      # BUILD DEBUG APK
+      # =========================
+
       - name: Build Debug APK
+        shell: bash
         run: |
+          set -e
           gradle assembleDebug --stacktrace
 
+
+      # =========================
+      # PREPARE APK
+      # =========================
+
       - name: Prepare APK
+        shell: bash
         run: |
+
+          set -e
+
           mkdir -p release
-          cp app/build/outputs/apk/debug/app-debug.apk release/Boyos-Hisab.apk
+
+          cp \
+            app/build/outputs/apk/debug/app-debug.apk \
+            release/Boyos-Hisab-APK.apk
+
+
+      # =========================
+      # BUILD RELEASE AAB
+      # =========================
+
+      - name: Build Release AAB
+        shell: bash
+        run: |
+          set -e
+          gradle bundleRelease --stacktrace
+
+
+      # =========================
+      # PREPARE AAB
+      # =========================
+
+      - name: Prepare AAB
+        shell: bash
+        run: |
+
+          set -e
+
+          mkdir -p release
+
+          cp \
+            app/build/outputs/bundle/release/app-release.aab \
+            release/Boyos-Hisab-AAB.aab
+
+
+      # =========================
+      # UPLOAD APK
+      # =========================
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
+
         with:
+
           name: Boyos-Hisab-APK
-          path: release/Boyos-Hisab.apk
+
+          path: release/Boyos-Hisab-APK.apk
+
           if-no-files-found: error
 
-      - name: Build Release AAB
-        run: |
-          gradle bundleRelease --stacktrace
 
-      - name: Prepare AAB
-        run: |
-          mkdir -p release
-          cp app/build/outputs/bundle/release/app-release.aab release/Boyos-Hisab.aab
+      # =========================
+      # UPLOAD AAB
+      # =========================
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
+
         with:
+
           name: Boyos-Hisab-AAB
-          path: release/Boyos-Hisab.aab
+
+          path: release/Boyos-Hisab-AAB.aab
+
           if-no-files-found: error
