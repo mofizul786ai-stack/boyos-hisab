@@ -128,7 +128,7 @@ jobs:
 
 
       # ==========================================
-      # 9. Generate Release Signing Key
+      # 9. Generate Signing Key
       # ==========================================
       - name: Generate Release Signing Key
         working-directory: BoyosHisab
@@ -183,6 +183,7 @@ jobs:
               }
 
               buildTypes {
+
                   debug {
                       minifyEnabled false
                   }
@@ -217,15 +218,17 @@ jobs:
 
               <application
                   android:allowBackup="true"
+                  android:hardwareAccelerated="true"
                   android:label="বয়স হিসাব"
                   android:icon="@drawable/app_icon"
                   android:roundIcon="@drawable/app_icon"
                   android:supportsRtl="true"
                   android:theme="@style/AppTheme">
 
-                  <!--
-                      YOUR ADMOB APP ID
-                  -->
+                  <!-- ================================= -->
+                  <!-- YOUR ADMOB APP ID -->
+                  <!-- ================================= -->
+
                   <meta-data
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
                       android:value="ca-app-pub-4629127200038980~5718715166" />
@@ -269,21 +272,13 @@ jobs:
 
                   <item name="android:fontFamily">sans</item>
 
-                  <item name="android:colorAccent">
-                      #2196F3
-                  </item>
+                  <item name="android:colorAccent">#2196F3</item>
 
-                  <item name="android:statusBarColor">
-                      #1565C0
-                  </item>
+                  <item name="android:statusBarColor">#1565C0</item>
 
-                  <item name="android:navigationBarColor">
-                      #FFFFFF
-                  </item>
+                  <item name="android:navigationBarColor">#FFFFFF</item>
 
-                  <item name="android:windowLightStatusBar">
-                      false
-                  </item>
+                  <item name="android:windowLightStatusBar">false</item>
 
               </style>
 
@@ -315,9 +310,10 @@ jobs:
                   android:layout_weight="1"
                   android:overScrollMode="never" />
 
-              <!--
-                  REAL ADMOB BANNER
-              -->
+              <!-- ================================= -->
+              <!-- REAL ADMOB BANNER -->
+              <!-- ================================= -->
+
               <com.google.android.gms.ads.AdView
                   android:id="@+id/adView"
                   android:layout_width="match_parent"
@@ -355,6 +351,7 @@ jobs:
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
+
                   super.onCreate(savedInstanceState);
 
                   setContentView(R.layout.activity_main);
@@ -458,6 +455,7 @@ jobs:
 
                   super.onDestroy();
               }
+
           }
           EOF
 
@@ -477,13 +475,17 @@ jobs:
           cp icon.png \
             BoyosHisab/app/src/main/res/drawable/app_icon.png
 
-          echo "App logo copied successfully."
+          # Also copy icon for WebView
+          cp icon.png \
+            BoyosHisab/app/src/main/assets/icon.png
+
+          echo "App logo copied."
 
 
       # ==========================================
-      # 16. Copy Website Files
+      # 16. Copy index.html
       # ==========================================
-      - name: Copy Website Files
+      - name: Copy index.html
         run: |
           set -e
 
@@ -495,18 +497,24 @@ jobs:
           cp index.html \
             BoyosHisab/app/src/main/assets/index.html
 
+          echo "index.html copied."
+
 
       # ==========================================
-      # 17. Copy Other HTML Files
+      # 17. Copy Root CSS/JS
       # ==========================================
-      - name: Copy HTML Pages
+      - name: Copy Root Website Files
         run: |
           set -e
 
           for file in \
+            style.css \
+            script.js \
             birthday.html \
             rashi.html \
-            more.html
+            more.html \
+            service-worker.js \
+            manifest.json
           do
 
             if [ -f "$file" ]; then
@@ -550,22 +558,7 @@ jobs:
 
 
       # ==========================================
-      # 19. Copy Service Worker
-      # ==========================================
-      - name: Copy Service Worker
-        run: |
-          if [ -f "service-worker.js" ]; then
-
-            cp service-worker.js \
-              BoyosHisab/app/src/main/assets/
-
-            echo "service-worker.js copied."
-
-          fi
-
-
-      # ==========================================
-      # 20. Create Gradle Wrapper
+      # 19. Create Gradle Wrapper
       # ==========================================
       - name: Create Gradle Wrapper
         working-directory: BoyosHisab
@@ -575,7 +568,7 @@ jobs:
 
 
       # ==========================================
-      # 21. Check Gradle
+      # 20. Check Gradle
       # ==========================================
       - name: Check Gradle
         working-directory: BoyosHisab
@@ -584,7 +577,7 @@ jobs:
 
 
       # ==========================================
-      # 22. Build Signed Release APK
+      # 21. Build Release APK
       # ==========================================
       - name: Build Release APK
         working-directory: BoyosHisab
@@ -598,7 +591,7 @@ jobs:
 
 
       # ==========================================
-      # 23. Build Signed Release AAB
+      # 22. Build Release AAB
       # ==========================================
       - name: Build Release AAB
         working-directory: BoyosHisab
@@ -612,7 +605,7 @@ jobs:
 
 
       # ==========================================
-      # 24. Verify Signed APK
+      # 23. Verify APK
       # ==========================================
       - name: Verify APK Signature
         working-directory: BoyosHisab
@@ -635,7 +628,7 @@ jobs:
 
 
       # ==========================================
-      # 25. Check AAB
+      # 24. Check AAB
       # ==========================================
       - name: Check AAB
         working-directory: BoyosHisab
@@ -653,7 +646,7 @@ jobs:
 
 
       # ==========================================
-      # 26. Prepare Output
+      # 25. Prepare Output
       # ==========================================
       - name: Prepare Release Files
         run: |
@@ -679,7 +672,7 @@ jobs:
 
 
       # ==========================================
-      # 27. Upload APK + AAB
+      # 26. Upload APK + AAB
       # ==========================================
       - name: Upload Release APK and AAB
         uses: actions/upload-artifact@v4
@@ -690,7 +683,7 @@ jobs:
 
 
       # ==========================================
-      # 28. Build Complete
+      # 27. Complete
       # ==========================================
       - name: Build Complete
         run: |
