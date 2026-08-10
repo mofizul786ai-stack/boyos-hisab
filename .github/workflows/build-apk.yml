@@ -1,4 +1,4 @@
-name: Build Boyos Hisab APK and AAB
+name: Build Boyos Hisab Release APK and AAB
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
 
 
       # ==========================================
-      # 2. Java 17
+      # 2. Setup Java 17
       # ==========================================
       - name: Setup Java 17
         uses: actions/setup-java@v5
@@ -31,7 +31,7 @@ jobs:
 
 
       # ==========================================
-      # 3. Android SDK
+      # 3. Setup Android SDK
       # ==========================================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -59,6 +59,8 @@ jobs:
 
           rm -rf BoyosHisab
 
+          mkdir -p BoyosHisab
+          mkdir -p BoyosHisab/app
           mkdir -p BoyosHisab/app/src/main/java/com/boyoshisab/app
           mkdir -p BoyosHisab/app/src/main/res/layout
           mkdir -p BoyosHisab/app/src/main/res/values
@@ -76,7 +78,7 @@ jobs:
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           android.enableJetifier=true
-          org.gradle.daemon=false
+          org.gradle.daemon=true
           org.gradle.parallel=true
           org.gradle.caching=true
           EOF
@@ -155,29 +157,11 @@ jobs:
                   versionName "1.0"
               }
 
-
-              signingConfigs {
-
-                  release {
-
-                      storeFile file("${rootProject.projectDir}/boyos-hisab-release.jks")
-
-                      storePassword "BoyosHisab2026"
-
-                      keyAlias "boyoshisab"
-
-                      keyPassword "BoyosHisab2026"
-                  }
-              }
-
-
               buildTypes {
 
                   debug {
-
                       minifyEnabled false
                   }
-
 
                   release {
 
@@ -185,43 +169,21 @@ jobs:
 
                       shrinkResources false
 
-                      signingConfig signingConfigs.release
+                      debuggable false
                   }
               }
           }
 
-
           dependencies {
 
               implementation 'com.google.android.gms:play-services-ads:24.5.0'
+
           }
           EOF
 
 
       # ==========================================
-      # 10. Create Release Keystore
-      # ==========================================
-      - name: Create Release Keystore
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          keytool -genkeypair \
-            -v \
-            -keystore boyos-hisab-release.jks \
-            -alias boyoshisab \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass BoyosHisab2026 \
-            -keypass BoyosHisab2026 \
-            -dname "CN=Boyos Hisab, OU=App, O=Boyos Hisab, L=Guwahati, ST=Assam, C=IN"
-
-          echo "Release keystore created successfully."
-
-
-      # ==========================================
-      # 11. Android Manifest
+      # 10. Android Manifest
       # ==========================================
       - name: Create Android Manifest
         working-directory: BoyosHisab
@@ -232,29 +194,22 @@ jobs:
           <manifest
               xmlns:android="http://schemas.android.com/apk/res/android">
 
-
-              <!-- Internet -->
               <uses-permission
                   android:name="android.permission.INTERNET" />
-
-              <uses-permission
-                  android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
               <application
 
                   android:allowBackup="true"
 
+                  android:label="বয়স হিসাব"
+
                   android:icon="@drawable/icon"
 
-                  android:label="বয়স হিসাব"
+                  android:roundIcon="@drawable/icon"
 
                   android:supportsRtl="true"
 
-                  android:hardwareAccelerated="true"
-
                   android:theme="@style/AppTheme">
-
 
                   <!-- ================================= -->
                   <!-- YOUR ADMOB APP ID -->
@@ -267,16 +222,11 @@ jobs:
                       android:value="ca-app-pub-4629127200038980~5718715166" />
 
 
-                  <!-- ================================= -->
-                  <!-- Main Activity -->
-                  <!-- ================================= -->
-
                   <activity
 
                       android:name=".MainActivity"
 
                       android:exported="true">
-
 
                       <intent-filter>
 
@@ -290,7 +240,6 @@ jobs:
 
                   </activity>
 
-
               </application>
 
           </manifest>
@@ -298,7 +247,7 @@ jobs:
 
 
       # ==========================================
-      # 12. App Theme
+      # 11. App Theme
       # ==========================================
       - name: Create App Theme
         working-directory: BoyosHisab
@@ -314,25 +263,13 @@ jobs:
 
                   <item name="android:fontFamily">sans</item>
 
-                  <item name="android:colorAccent">
-                      #2196F3
-                  </item>
+                  <item name="android:colorAccent">#2196F3</item>
 
-                  <item name="android:statusBarColor">
-                      #1565C0
-                  </item>
+                  <item name="android:statusBarColor">#1565C0</item>
 
-                  <item name="android:navigationBarColor">
-                      #FFFFFF
-                  </item>
+                  <item name="android:navigationBarColor">#FFFFFF</item>
 
-                  <item name="android:windowLightStatusBar">
-                      false
-                  </item>
-
-                  <item name="android:windowActionModeOverlay">
-                      true
-                  </item>
+                  <item name="android:windowLightStatusBar">false</item>
 
               </style>
 
@@ -341,7 +278,7 @@ jobs:
 
 
       # ==========================================
-      # 13. Main Layout
+      # 12. Main Layout
       # ==========================================
       - name: Create Main Layout
         working-directory: BoyosHisab
@@ -362,8 +299,6 @@ jobs:
               android:orientation="vertical">
 
 
-              <!-- Website -->
-
               <WebView
 
                   android:id="@+id/webView"
@@ -376,7 +311,7 @@ jobs:
 
 
               <!-- ================================= -->
-              <!-- YOUR ADMOB BANNER -->
+              <!-- YOUR ADMOB BANNER AD UNIT -->
               <!-- ================================= -->
 
               <com.google.android.gms.ads.AdView
@@ -391,13 +326,12 @@ jobs:
 
                   ads:adUnitId="ca-app-pub-4629127200038980/4349793174" />
 
-
           </LinearLayout>
           EOF
 
 
       # ==========================================
-      # 14. Main Activity
+      # 13. MainActivity
       # ==========================================
       - name: Create MainActivity
         working-directory: BoyosHisab
@@ -405,21 +339,17 @@ jobs:
           cat > app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
           package com.boyoshisab.app;
 
-
           import android.app.Activity;
           import android.os.Bundle;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
 
-
           import com.google.android.gms.ads.AdRequest;
           import com.google.android.gms.ads.AdView;
           import com.google.android.gms.ads.MobileAds;
 
-
           public class MainActivity extends Activity {
-
 
               private WebView webView;
 
@@ -431,13 +361,12 @@ jobs:
 
                   super.onCreate(savedInstanceState);
 
-
                   setContentView(R.layout.activity_main);
 
 
-                  // =====================================
+                  // =================================
                   // Initialize AdMob
-                  // =====================================
+                  // =================================
 
                   MobileAds.initialize(
                       this,
@@ -445,12 +374,11 @@ jobs:
                   );
 
 
-                  // =====================================
+                  // =================================
                   // WebView
-                  // =====================================
+                  // =================================
 
-                  webView =
-                      findViewById(R.id.webView);
+                  webView = findViewById(R.id.webView);
 
 
                   WebSettings settings =
@@ -467,55 +395,42 @@ jobs:
 
                   settings.setAllowContentAccess(true);
 
-                  settings.setLoadsImagesAutomatically(true);
-
-                  settings.setBuiltInZoomControls(false);
-
-                  settings.setDisplayZoomControls(false);
-
 
                   webView.setWebViewClient(
                       new WebViewClient()
                   );
 
 
-                  // =====================================
+                  // =================================
                   // Load Website
-                  // =====================================
+                  // =================================
 
                   webView.loadUrl(
                       "file:///android_asset/index.html"
                   );
 
 
-                  // =====================================
+                  // =================================
                   // Banner Ad
-                  // =====================================
+                  // =================================
 
                   adView =
                       findViewById(R.id.adView);
 
 
                   AdRequest adRequest =
-                      new AdRequest.Builder()
-                          .build();
+                      new AdRequest.Builder().build();
 
 
                   adView.loadAd(adRequest);
               }
 
 
-              // =====================================
-              // Back Button
-              // =====================================
-
               @Override
               public void onBackPressed() {
 
-                  if (
-                      webView != null &&
-                      webView.canGoBack()
-                  ) {
+                  if (webView != null &&
+                      webView.canGoBack()) {
 
                       webView.goBack();
 
@@ -525,10 +440,6 @@ jobs:
                   }
               }
 
-
-              // =====================================
-              // Pause
-              // =====================================
 
               @Override
               protected void onPause() {
@@ -542,15 +453,10 @@ jobs:
               }
 
 
-              // =====================================
-              // Resume
-              // =====================================
-
               @Override
               protected void onResume() {
 
                   super.onResume();
-
 
                   if (adView != null) {
 
@@ -558,10 +464,6 @@ jobs:
                   }
               }
 
-
-              // =====================================
-              // Destroy
-              // =====================================
 
               @Override
               protected void onDestroy() {
@@ -585,7 +487,7 @@ jobs:
 
 
       # ==========================================
-      # 15. Copy Website Files
+      # 14. Copy Website Files
       # ==========================================
       - name: Copy Website Files
         run: |
@@ -593,140 +495,126 @@ jobs:
 
           echo "Copying website files..."
 
-
-          # ======================================
-          # Main index.html
-          # ======================================
-
-          if [ -f "index.html" ]; then
-
-              cp index.html \
-                BoyosHisab/app/src/main/assets/index.html
-
-          else
-
-              echo "ERROR: index.html not found!"
-
-              exit 1
-
-          fi
-
-
-          # ======================================
-          # HTML Pages
-          # ======================================
+          # Main HTML files
 
           for file in \
-              birthday.html \
-              rashi.html \
-              more.html; do
+            index.html \
+            birthday.html \
+            rashi.html \
+            more.html \
+            privacy.html \
+            contact.html \
+            about.html; do
 
-              if [ -f "$file" ]; then
+            if [ -f "$file" ]; then
 
-                  cp "$file" \
-                    BoyosHisab/app/src/main/assets/
+              cp "$file" \
+                "BoyosHisab/app/src/main/assets/"
 
-              fi
+            fi
 
           done
 
 
-          # ======================================
           # CSS
-          # ======================================
 
-          if [ -f "style.css" ]; then
+          if [ -d "css" ]; then
 
-              cp style.css \
-                BoyosHisab/app/src/main/assets/
+            cp -r css \
+              BoyosHisab/app/src/main/assets/
 
           fi
 
 
-          # ======================================
           # JavaScript
-          # ======================================
 
-          if [ -f "script.js" ]; then
+          if [ -d "js" ]; then
 
-              cp script.js \
-                BoyosHisab/app/src/main/assets/
+            cp -r js \
+              BoyosHisab/app/src/main/assets/
 
           fi
 
 
-          # ======================================
+          # Images
+
+          if [ -d "images" ]; then
+
+            cp -r images \
+              BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          if [ -d "img" ]; then
+
+            cp -r img \
+              BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          # Assets
+
+          if [ -d "assets" ]; then
+
+            cp -r assets \
+              BoyosHisab/app/src/main/assets/
+
+          fi
+
+
+          # Fonts
+
+          if [ -d "fonts" ]; then
+
+            cp -r fonts \
+              BoyosHisab/app/src/main/assets/
+
+          fi
+
+
           # Service Worker
-          # ======================================
 
           if [ -f "service-worker.js" ]; then
 
-              cp service-worker.js \
-                BoyosHisab/app/src/main/assets/
+            cp service-worker.js \
+              BoyosHisab/app/src/main/assets/
 
           fi
 
 
-          # ======================================
-          # Manifest
-          # ======================================
-
-          if [ -f "manifest.json" ]; then
-
-              cp manifest.json \
-                BoyosHisab/app/src/main/assets/
-
-          fi
-
-
-          # ======================================
+          # =================================
           # App Icon
-          # ======================================
+          # =================================
 
           if [ -f "icon.png" ]; then
 
-              cp icon.png \
-                BoyosHisab/app/src/main/res/drawable/icon.png
+            cp icon.png \
+              BoyosHisab/app/src/main/res/drawable/icon.png
 
-              cp icon.png \
-                BoyosHisab/app/src/main/assets/icon.png
+            echo "App icon copied successfully."
 
           else
 
-              echo "ERROR: icon.png not found!"
-
-              exit 1
+            echo "WARNING: icon.png not found."
 
           fi
 
 
-          # ======================================
-          # Folders
-          # ======================================
+          echo "=============================="
 
-          for folder in \
-              css \
-              js \
-              images \
-              img \
-              fonts \
-              assets; do
+          echo "Assets:"
 
-              if [ -d "$folder" ]; then
+          find BoyosHisab/app/src/main/assets \
+            -maxdepth 2 -type f \
+            -print
 
-                  cp -r "$folder" \
-                    BoyosHisab/app/src/main/assets/
-
-              fi
-
-          done
-
-
-          echo "Website files copied successfully."
+          echo "=============================="
 
 
       # ==========================================
-      # 16. Create Gradle Wrapper
+      # 15. Create Gradle Wrapper
       # ==========================================
       - name: Create Gradle Wrapper
         working-directory: BoyosHisab
@@ -740,52 +628,48 @@ jobs:
 
 
       # ==========================================
-      # 17. Check Project
+      # 16. Check Gradle Project
       # ==========================================
       - name: Check Gradle Project
         working-directory: BoyosHisab
         run: |
-          ./gradlew --version
-
-          ./gradlew tasks
+          ./gradlew projects
 
 
       # ==========================================
-      # 18. Build Release APK
+      # 17. Build Release APK
       # ==========================================
       - name: Build Release APK
         working-directory: BoyosHisab
         run: |
           set -e
 
-          ./gradlew \
-            assembleRelease \
+          ./gradlew assembleRelease \
             --stacktrace \
             --no-daemon
 
 
       # ==========================================
-      # 19. Build Release AAB
+      # 18. Build Release AAB
       # ==========================================
       - name: Build Release AAB
         working-directory: BoyosHisab
         run: |
           set -e
 
-          ./gradlew \
-            bundleRelease \
+          ./gradlew bundleRelease \
             --stacktrace \
             --no-daemon
 
 
       # ==========================================
-      # 20. Find Build Files
+      # 19. Find Build Files
       # ==========================================
-      - name: Find Build Files
+      - name: Find APK and AAB
         run: |
-          echo "======================================"
-          echo "APK FILES"
-          echo "======================================"
+          set -e
+
+          echo "APK files:"
 
           find BoyosHisab/app/build/outputs/apk \
             -type f \
@@ -793,9 +677,7 @@ jobs:
             -print
 
 
-          echo "======================================"
-          echo "AAB FILES"
-          echo "======================================"
+          echo "AAB files:"
 
           find BoyosHisab/app/build/outputs/bundle \
             -type f \
@@ -804,13 +686,82 @@ jobs:
 
 
       # ==========================================
-      # 21. Prepare APK and AAB
+      # 20. Prepare Release Files
       # ==========================================
-      - name: Prepare APK and AAB
+      - name: Prepare Release Files
         run: |
           set -e
+
+          rm -rf output
 
           mkdir -p output
 
 
-        
+          # Find APK
+
+          APK_FILE=$(find \
+            BoyosHisab/app/build/outputs/apk/release \
+            -type f \
+            -name "*.apk" \
+            | head -n 1)
+
+
+          # Find AAB
+
+          AAB_FILE=$(find \
+            BoyosHisab/app/build/outputs/bundle/release \
+            -type f \
+            -name "*.aab" \
+            | head -n 1)
+
+
+          if [ -z "$APK_FILE" ]; then
+
+            echo "ERROR: Release APK not found."
+
+            exit 1
+
+          fi
+
+
+          if [ -z "$AAB_FILE" ]; then
+
+            echo "ERROR: Release AAB not found."
+
+            exit 1
+
+          fi
+
+
+          echo "APK found: $APK_FILE"
+
+          echo "AAB found: $AAB_FILE"
+
+
+          cp "$APK_FILE" \
+            output/Boyos-Hisab-Release.apk
+
+
+          cp "$AAB_FILE" \
+            output/Boyos-Hisab-Release.aab
+
+
+          echo "=============================="
+
+          ls -lh output/
+
+          echo "=============================="
+
+
+      # ==========================================
+      # 21. Upload APK and AAB
+      # ==========================================
+      - name: Upload Release APK and AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: Boyos-Hisab-Release
+          path: |
+            output/Boyos-Hisab-Release.apk
+            output/Boyos-Hisab-Release.aab
+          if-no-files-found: error
+          retention-days: 30
