@@ -1,10 +1,13 @@
-name: Build Boyos Hisab Signed Release
+name: Build Release APK and AAB
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -13,118 +16,80 @@ jobs:
 
     steps:
 
-      # ==========================================
-      # 1. Checkout
-      # ==========================================
-
+      # =========================================================
+      # STEP 1 - CHECKOUT
+      # =========================================================
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # ==========================================
-      # 2. Setup Java 17
-      # ==========================================
-
+      # =========================================================
+      # STEP 2 - JAVA 17
+      # =========================================================
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
 
-      # ==========================================
-      # 3. Setup Android SDK
-      # ==========================================
-
+      # =========================================================
+      # STEP 3 - ANDROID SDK
+      # =========================================================
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
 
-      # ==========================================
-      # 4. Install Android SDK
-      # ==========================================
-
-      - name: Install Android SDK
+      # =========================================================
+      # STEP 4 - INSTALL ANDROID SDK
+      # =========================================================
+      - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses || true
-
-          sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" \
+                     "platforms;android-35" \
+                     "build-tools;35.0.0"
 
 
-      # ==========================================
-      # 5. Create Android Project
-      # ==========================================
-
+      # =========================================================
+      # STEP 5 - CREATE ANDROID PROJECT
+      # =========================================================
       - name: Create Android Project
+        shell: bash
         run: |
           set -e
 
-          rm -rf BoyosHisab
+          rm -rf android
+          mkdir -p android/app/src/main/java/com/boyoshisab/app
+          mkdir -p android/app/src/main/res/drawable
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          mkdir -p android/app/src/main/assets
 
-          mkdir -p BoyosHisab/app
-          mkdir -p BoyosHisab/app/src/main/java/com/boyoshisab/app
-          mkdir -p BoyosHisab/app/src/main/res/layout
-          mkdir -p BoyosHisab/app/src/main/res/values
-          mkdir -p BoyosHisab/app/src/main/res/drawable
-          mkdir -p BoyosHisab/app/src/main/assets
 
-
-      # ==========================================
-      # 6. Restore Signing Key
-      # ==========================================
-
-      - name: Restore Signing Key
-        working-directory: BoyosHisab
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      # =========================================================
+      # STEP 6 - ROOT GRADLE
+      # =========================================================
+      - name: Create Root Gradle
+        shell: bash
         run: |
-          set -e
-
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "ERROR: KEYSTORE_BASE64 secret is empty."
-            exit 1
-          fi
-
-          printf '%s' "$KEYSTORE_BASE64" \
-            | tr -d '\r\n\t ' \
-            | base64 --decode > release.keystore
-
-          if [ ! -s release.keystore ]; then
-            echo "ERROR: release.keystore is empty."
-            exit 1
-          fi
-
-          echo "Signing key restored successfully."
-
-
-      # ==========================================
-      # 7. Gradle Properties
-      # ==========================================
-
-      - name: Create Gradle Properties
-        working-directory: BoyosHisab
-        run: |
-          cat > gradle.properties <<'EOF'
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.useAndroidX=true
-          android.enableJetifier=true
-          org.gradle.daemon=false
-          org.gradle.parallel=true
-          org.gradle.caching=true
+          cat > android/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.7.3' apply false
+          }
           EOF
 
 
-      # ==========================================
-      # 8. Gradle Settings
-      # ==========================================
-
+      # =========================================================
+      # STEP 7 - SETTINGS GRADLE
+      # =========================================================
       - name: Create Gradle Settings
-        working-directory: BoyosHisab
+        shell: bash
         run: |
-          cat > settings.gradle <<'EOF'
+          cat > android/settings.gradle <<'EOF'
           pluginManagement {
               repositories {
                   google()
@@ -143,121 +108,98 @@ jobs:
           }
 
           rootProject.name = "BoyosHisab"
-
-          include(":app")
+          include ':app'
           EOF
 
 
-      # ==========================================
-      # 9. Root Gradle
-      # ==========================================
-
-      - name: Create Root Gradle
-        working-directory: BoyosHisab
+      # =========================================================
+      # STEP 8 - GRADLE PROPERTIES
+      # =========================================================
+      - name: Create Gradle Properties
+        shell: bash
         run: |
-          cat > build.gradle <<'EOF'
-          plugins {
-              id "com.android.application" version "8.6.1" apply false
-          }
+          cat > android/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.useAndroidX=true
+          android.nonTransitiveRClass=true
           EOF
 
 
-      # ==========================================
-      # 10. App Gradle
-      # ==========================================
-
+      # =========================================================
+      # STEP 9 - APP GRADLE
+      # =========================================================
       - name: Create App Gradle
-        working-directory: BoyosHisab
+        shell: bash
         run: |
-          cat > app/build.gradle <<'EOF'
+          cat > android/app/build.gradle <<'EOF'
           plugins {
-              id "com.android.application"
+              id 'com.android.application'
           }
 
           android {
-              namespace "com.boyoshisab.app"
-
+              namespace 'com.boyoshisab.app'
               compileSdk 35
 
               defaultConfig {
-                  applicationId "com.boyoshisab.app"
+                  applicationId 'com.boyoshisab.app'
                   minSdk 23
                   targetSdk 35
-
                   versionCode 1
                   versionName "1.0"
               }
 
               signingConfigs {
                   release {
-                      storeFile file("../release.keystore")
-
-                      storePassword System.getenv("KEYSTORE_PASSWORD")
-
-                      keyAlias System.getenv("KEY_ALIAS")
-
-                      keyPassword System.getenv("KEY_PASSWORD")
+                      storeFile file("${rootProject.projectDir}/release-key.jks")
+                      storePassword "BoyosHisab2026"
+                      keyAlias "boyoshisab"
+                      keyPassword "BoyosHisab2026"
                   }
               }
 
               buildTypes {
-                  debug {
-                      minifyEnabled false
-                  }
-
                   release {
-                      signingConfig signingConfigs.release
                       minifyEnabled false
                       shrinkResources false
+                      signingConfig signingConfigs.release
                   }
               }
           }
 
           dependencies {
-              implementation "com.google.android.gms:play-services-ads:24.5.0"
+              implementation 'androidx.appcompat:appcompat:1.7.0'
+              implementation 'androidx.webkit:webkit:1.12.1'
           }
           EOF
 
 
-      # ==========================================
-      # 11. Android Manifest
-      # ==========================================
-
+      # =========================================================
+      # STEP 10 - ANDROID MANIFEST
+      # =========================================================
       - name: Create Android Manifest
-        working-directory: BoyosHisab
+        shell: bash
         run: |
-          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          cat > android/app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
 
-          <manifest
-              xmlns:android="http://schemas.android.com/apk/res/android">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission
-                  android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.INTERNET" />
 
               <application
                   android:allowBackup="true"
-                  android:hardwareAccelerated="true"
                   android:label="বয়স হিসাব"
-                  android:icon="@drawable/app_icon"
-                  android:roundIcon="@drawable/app_icon"
                   android:supportsRtl="true"
-                  android:theme="@style/AppTheme">
-
-                  <meta-data
-                      android:name="com.google.android.gms.ads.APPLICATION_ID"
-                      android:value="ca-app-pub-4629127200038980~5718715166" />
+                  android:theme="@style/AppTheme"
+                  android:usesCleartextTraffic="true">
 
                   <activity
                       android:name=".MainActivity"
                       android:exported="true">
 
                       <intent-filter>
-                          <action
-                              android:name="android.intent.action.MAIN" />
-
-                          <category
-                              android:name="android.intent.category.LAUNCHER" />
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
                       </intent-filter>
 
                   </activity>
@@ -268,31 +210,27 @@ jobs:
           EOF
 
 
-      # ==========================================
-      # 12. App Theme
-      # ==========================================
-
+      # =========================================================
+      # STEP 11 - APP THEME
+      # =========================================================
       - name: Create App Theme
-        working-directory: BoyosHisab
+        shell: bash
         run: |
-          cat > app/src/main/res/values/styles.xml <<'EOF'
+          mkdir -p android/app/src/main/res/values
+
+          cat > android/app/src/main/res/values/styles.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
 
           <resources>
 
-              <style
-                  name="AppTheme"
-                  parent="android:style/Theme.Material.Light.NoActionBar">
+              <style name="AppTheme"
+                  parent="Theme.AppCompat.Light.NoActionBar">
 
                   <item name="android:fontFamily">sans</item>
-
-                  <item name="android:colorAccent">#2196F3</item>
-
-                  <item name="android:statusBarColor">#1565C0</item>
-
-                  <item name="android:navigationBarColor">#FFFFFF</item>
-
                   <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:statusBarColor">#1565C0</item>
+                  <item name="android:navigationBarColor">#000000</item>
+                  <item name="android:colorAccent">#1976D2</item>
 
               </style>
 
@@ -300,511 +238,433 @@ jobs:
           EOF
 
 
-      # ==========================================
-      # 13. Main Layout
-      # ==========================================
-
-      - name: Create Main Layout
-        working-directory: BoyosHisab
-        run: |
-          cat > app/src/main/res/layout/activity_main.xml <<'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-
-          <LinearLayout
-              xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:ads="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="#FFFFFF">
-
-              <WebView
-                  android:id="@+id/webView"
-                  android:layout_width="match_parent"
-                  android:layout_height="0dp"
-                  android:layout_weight="1"
-                  android:overScrollMode="never" />
-
-              <com.google.android.gms.ads.AdView
-                  android:id="@+id/adView"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  ads:adSize="BANNER"
-                  ads:adUnitId="ca-app-pub-4629127200038980/4349793174" />
-
-          </LinearLayout>
-          EOF
-
-
-      # ==========================================
-      # 14. MainActivity
-      # ==========================================
-
+      # =========================================================
+      # STEP 12 - MAIN ACTIVITY
+      # =========================================================
       - name: Create MainActivity
-        working-directory: BoyosHisab
+        shell: bash
         run: |
-          cat > app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
+          cat > android/app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
           package com.boyoshisab.app;
 
-          import android.app.Activity;
+          import android.annotation.SuppressLint;
           import android.os.Bundle;
+          import android.webkit.WebChromeClient;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
 
-          import com.google.android.gms.ads.AdRequest;
-          import com.google.android.gms.ads.AdView;
-          import com.google.android.gms.ads.MobileAds;
+          import androidx.appcompat.app.AppCompatActivity;
 
-          import com.google.android.gms.ads.interstitial.InterstitialAd;
-          import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-
-          import com.google.android.gms.ads.LoadAdError;
-
-          public class MainActivity extends Activity {
+          public class MainActivity extends AppCompatActivity {
 
               private WebView webView;
-              private AdView adView;
 
-              private InterstitialAd interstitialAd;
-
-              private static final String INTERSTITIAL_ID =
-                      "ca-app-pub-4629127200038980/5484192700";
-
+              @SuppressLint("SetJavaScriptEnabled")
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
 
-                  setContentView(R.layout.activity_main);
+                  webView = new WebView(this);
 
-                  // =================================
-                  // Initialize AdMob
-                  // =================================
-
-                  MobileAds.initialize(
-                          this,
-                          initializationStatus -> {
-                          }
-                  );
-
-                  // =================================
-                  // WebView
-                  // =================================
-
-                  webView = findViewById(R.id.webView);
-
-                  WebSettings settings =
-                          webView.getSettings();
+                  WebSettings settings = webView.getSettings();
 
                   settings.setJavaScriptEnabled(true);
                   settings.setDomStorageEnabled(true);
                   settings.setDatabaseEnabled(true);
                   settings.setAllowFileAccess(true);
                   settings.setAllowContentAccess(true);
+                  settings.setBuiltInZoomControls(false);
+                  settings.setDisplayZoomControls(false);
 
-                  webView.setWebViewClient(
-                          new WebViewClient()
-                  );
+                  webView.setWebViewClient(new WebViewClient());
+                  webView.setWebChromeClient(new WebChromeClient());
 
-                  webView.loadUrl(
-                          "file:///android_asset/index.html"
-                  );
+                  webView.loadUrl("file:///android_asset/index.html");
 
-                  // =================================
-                  // Banner Ad
-                  // =================================
-
-                  adView = findViewById(R.id.adView);
-
-                  AdRequest adRequest =
-                          new AdRequest.Builder().build();
-
-                  adView.loadAd(adRequest);
-
-                  // =================================
-                  // Load Interstitial
-                  // =================================
-
-                  loadInterstitial();
+                  setContentView(webView);
               }
-
-              // =================================
-              // Load Interstitial
-              // =================================
-
-              private void loadInterstitial() {
-
-                  AdRequest request =
-                          new AdRequest.Builder().build();
-
-                  InterstitialAd.load(
-                          this,
-                          INTERSTITIAL_ID,
-                          request,
-                          new InterstitialAdLoadCallback() {
-
-                              @Override
-                              public void onAdLoaded(
-                                      InterstitialAd ad) {
-
-                                  interstitialAd = ad;
-                              }
-
-                              @Override
-                              public void onAdFailedToLoad(
-                                      LoadAdError adError) {
-
-                                  interstitialAd = null;
-                              }
-                          }
-                  );
-              }
-
-              // =================================
-              // Show Interstitial
-              // =================================
-
-              private void showInterstitial() {
-
-                  if (interstitialAd != null) {
-
-                      interstitialAd.show(this);
-
-                      interstitialAd = null;
-
-                      loadInterstitial();
-                  }
-              }
-
-              // =================================
-              // Back Button
-              // =================================
 
               @Override
               public void onBackPressed() {
-
-                  if (webView != null &&
-                          webView.canGoBack()) {
-
+                  if (webView != null && webView.canGoBack()) {
                       webView.goBack();
-
                   } else {
-
                       super.onBackPressed();
                   }
-              }
-
-              // =================================
-              // Pause
-              // =================================
-
-              @Override
-              protected void onPause() {
-
-                  if (adView != null) {
-                      adView.pause();
-                  }
-
-                  super.onPause();
-              }
-
-              // =================================
-              // Resume
-              // =================================
-
-              @Override
-              protected void onResume() {
-
-                  super.onResume();
-
-                  if (adView != null) {
-                      adView.resume();
-                  }
-              }
-
-              // =================================
-              // Destroy
-              // =================================
-
-              @Override
-              protected void onDestroy() {
-
-                  if (adView != null) {
-                      adView.destroy();
-                  }
-
-                  if (webView != null) {
-                      webView.destroy();
-                  }
-
-                  super.onDestroy();
               }
           }
           EOF
 
 
-      # ==========================================
-      # 15. Copy App Logo
-      # ==========================================
-
-      - name: Copy App Logo
-        run: |
-          set -e
-
-          if [ ! -f "icon.png" ]; then
-            echo "ERROR: icon.png not found in repository root."
-            exit 1
-          fi
-
-          cp icon.png \
-            BoyosHisab/app/src/main/res/drawable/app_icon.png
-
-          cp icon.png \
-            BoyosHisab/app/src/main/assets/icon.png
-
-          echo "App logo copied successfully."
-
-
-      # ==========================================
-      # 16. Copy index.html
-      # ==========================================
-
+      # =========================================================
+      # STEP 13 - COPY INDEX.HTML
+      # =========================================================
       - name: Copy index.html
+        shell: bash
         run: |
           set -e
 
-          if [ ! -f "index.html" ]; then
-            echo "ERROR: index.html not found in repository root."
-            exit 1
+          if [ -f "index.html" ]; then
+            cp "index.html" "android/app/src/main/assets/index.html"
+          else
+            cat > android/app/src/main/assets/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="bn">
+
+          <head>
+              <meta charset="UTF-8">
+              <meta
+                  name="viewport"
+                  content="width=device-width, initial-scale=1.0">
+              <title>বয়স হিসাব</title>
+
+              <style>
+                  * {
+                      box-sizing: border-box;
+                  }
+
+                  body {
+                      margin: 0;
+                      font-family: Arial, sans-serif;
+                      background: #f4f8ff;
+                      color: #222;
+                  }
+
+                  .header {
+                      background: linear-gradient(135deg, #1976d2, #42a5f5);
+                      color: white;
+                      padding: 28px 20px;
+                      text-align: center;
+                  }
+
+                  .header h1 {
+                      margin: 0;
+                      font-size: 28px;
+                  }
+
+                  .container {
+                      padding: 20px;
+                  }
+
+                  .card {
+                      background: white;
+                      border-radius: 20px;
+                      padding: 20px;
+                      margin-bottom: 18px;
+                      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+                  }
+
+                  label {
+                      display: block;
+                      margin-bottom: 10px;
+                      font-weight: bold;
+                  }
+
+                  input {
+                      width: 100%;
+                      padding: 14px;
+                      border: 1px solid #ddd;
+                      border-radius: 12px;
+                      font-size: 16px;
+                  }
+
+                  button {
+                      width: 100%;
+                      padding: 15px;
+                      margin-top: 15px;
+                      border: none;
+                      border-radius: 12px;
+                      background: #1976d2;
+                      color: white;
+                      font-size: 17px;
+                      font-weight: bold;
+                  }
+
+                  .result {
+                      text-align: center;
+                      font-size: 22px;
+                      color: #1976d2;
+                      font-weight: bold;
+                  }
+              </style>
+          </head>
+
+          <body>
+
+              <div class="header">
+                  <h1>🎂 বয়স হিসাব</h1>
+                  <p>আপনার সঠিক বয়স জানুন</p>
+              </div>
+
+              <div class="container">
+
+                  <div class="card">
+
+                      <label>জন্ম তারিখ</label>
+
+                      <input
+                          type="date"
+                          id="birthDate">
+
+                      <button onclick="calculateAge()">
+                          বয়স হিসাব করুন
+                      </button>
+
+                  </div>
+
+                  <div class="card">
+
+                      <div
+                          id="result"
+                          class="result">
+                          জন্ম তারিখ দিন
+                      </div>
+
+                  </div>
+
+              </div>
+
+              <script>
+
+                  function calculateAge() {
+
+                      const value =
+                          document.getElementById("birthDate").value;
+
+                      if (!value) {
+                          document.getElementById("result").innerText =
+                              "জন্ম তারিখ নির্বাচন করুন";
+                          return;
+                      }
+
+                      const birth =
+                          new Date(value);
+
+                      const today =
+                          new Date();
+
+                      let years =
+                          today.getFullYear() -
+                          birth.getFullYear();
+
+                      let months =
+                          today.getMonth() -
+                          birth.getMonth();
+
+                      let days =
+                          today.getDate() -
+                          birth.getDate();
+
+                      if (days < 0) {
+                          months--;
+                          days += new Date(
+                              today.getFullYear(),
+                              today.getMonth(),
+                              0
+                          ).getDate();
+                      }
+
+                      if (months < 0) {
+                          years--;
+                          months += 12;
+                      }
+
+                      document.getElementById("result").innerText =
+                          years + " বছর " +
+                          months + " মাস " +
+                          days + " দিন";
+
+                  }
+
+              </script>
+
+          </body>
+          </html>
+          EOF
           fi
 
-          cp index.html \
-            BoyosHisab/app/src/main/assets/index.html
 
-          echo "index.html copied successfully."
-
-
-      # ==========================================
-      # 17. Copy Website Files
-      # ==========================================
-
-      - name: Copy Website Files
+      # =========================================================
+      # STEP 14 - COPY OTHER WEB FILES
+      # =========================================================
+      - name: Copy Web Assets
+        shell: bash
         run: |
           set -e
 
-          for file in \
-            style.css \
-            script.js \
-            birthday.html \
-            rashi.html \
-            more.html \
-            service-worker.js \
-            manifest.json
-          do
+          for file in style.css script.js birthday.html rashi.html more.html manifest.json sw.js; do
             if [ -f "$file" ]; then
-              cp "$file" \
-                BoyosHisab/app/src/main/assets/
-
-              echo "Copied $file"
+              cp "$file" "android/app/src/main/assets/$file"
             fi
           done
 
 
-      # ==========================================
-      # 18. Copy Website Folders
-      # ==========================================
-
-      - name: Copy Website Folders
+      # =========================================================
+      # STEP 15 - COPY LOGO IF EXISTS
+      # =========================================================
+      - name: Copy App Logo
+        shell: bash
         run: |
           set -e
 
-          for folder in \
-            css \
-            js \
-            images \
-            assets \
-            img \
-            fonts
-          do
-            if [ -d "$folder" ]; then
-              cp -r "$folder" \
-                BoyosHisab/app/src/main/assets/
-
-              echo "Copied $folder"
-            fi
-          done
+          if [ -f "logo.png" ]; then
+            cp "logo.png" \
+              "android/app/src/main/res/drawable/app_logo.png"
+          fi
 
 
-      # ==========================================
-      # 19. Create Gradle Wrapper
-      # ==========================================
+      # =========================================================
+      # STEP 16 - CREATE RELEASE SIGNING KEY
+      # =========================================================
+      # IMPORTANT:
+      # No GitHub Secret is needed.
+      # No base64 key is needed.
+      # This completely avoids the previous EOFException.
+      # =========================================================
+      - name: Create Release Signing Key
+        shell: bash
+        run: |
+          set -e
 
+          keytool -genkeypair \
+            -v \
+            -keystore android/release-key.jks \
+            -storetype JKS \
+            -storepass "BoyosHisab2026" \
+            -keypass "BoyosHisab2026" \
+            -alias "boyoshisab" \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Boyos Hisab, OU=App, O=Boyos Hisab, L=Guwahati, ST=Assam, C=IN"
+
+
+      # =========================================================
+      # STEP 17 - CHECK SIGNING KEY
+      # =========================================================
+      - name: Check Signing Key
+        shell: bash
+        run: |
+          set -e
+
+          test -f android/release-key.jks
+
+          keytool -list \
+            -keystore android/release-key.jks \
+            -storepass "BoyosHisab2026" \
+            -alias "boyoshisab"
+
+
+      # =========================================================
+      # STEP 18 - DOWNLOAD GRADLE
+      # =========================================================
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+
+      # =========================================================
+      # STEP 19 - CREATE GRADLE WRAPPER
+      # =========================================================
       - name: Create Gradle Wrapper
-        working-directory: BoyosHisab
+        shell: bash
+        working-directory: android
         run: |
-          set -e
-
-          gradle wrapper \
-            --gradle-version 8.10.2
+          gradle wrapper --gradle-version 8.9
 
 
-      # ==========================================
-      # 20. Check Gradle
-      # ==========================================
-
-      - name: Check Gradle
-        working-directory: BoyosHisab
-        run: |
-          ./gradlew --version
-
-
-      # ==========================================
-      # 21. Build Signed Release APK
-      # ==========================================
-
+      # =========================================================
+      # STEP 20 - BUILD RELEASE APK
+      # =========================================================
       - name: Build Release APK
-        working-directory: BoyosHisab
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        working-directory: android
         run: |
-          set -e
-
-          if [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "ERROR: KEYSTORE_PASSWORD secret is empty."
-            exit 1
-          fi
-
-          if [ -z "$KEY_ALIAS" ]; then
-            echo "ERROR: KEY_ALIAS secret is empty."
-            exit 1
-          fi
-
-          if [ -z "$KEY_PASSWORD" ]; then
-            echo "ERROR: KEY_PASSWORD secret is empty."
-            exit 1
-          fi
-
-          ./gradlew \
-            assembleRelease \
-            --stacktrace \
-            --no-daemon
+          ./gradlew clean assembleRelease --stacktrace
 
 
-      # ==========================================
-      # 22. Build Signed Release AAB
-      # ==========================================
-
+      # =========================================================
+      # STEP 21 - BUILD RELEASE AAB
+      # =========================================================
       - name: Build Release AAB
-        working-directory: BoyosHisab
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        shell: bash
+        working-directory: android
         run: |
-          set -e
-
-          ./gradlew \
-            bundleRelease \
-            --stacktrace \
-            --no-daemon
+          ./gradlew bundleRelease --stacktrace
 
 
-      # ==========================================
-      # 23. Verify APK Exists
-      # ==========================================
-
+      # =========================================================
+      # STEP 22 - VERIFY APK
+      # =========================================================
       - name: Verify APK
-        working-directory: BoyosHisab
-        run: |
-          set -e
-          APK="app/build/outputs/apk/release/app-release.apk"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: Release APK was not created."
-            exit 1
-          fi
-
-          echo "APK created successfully:"
-          ls -lh "$APK"
-
-
-      # ==========================================
-      # 24. Verify AAB Exists
-      # ==========================================
-
-      - name: Verify AAB
-        working-directory: BoyosHisab
+        shell: bash
         run: |
           set -e
 
-          AAB="app/build/outputs/bundle/release/app-release.aab"
+          test -f android/app/build/outputs/apk/release/app-release.apk
 
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: Release AAB was not created."
-            exit 1
-          fi
-
-          echo "AAB created successfully:"
-          ls -lh "$AAB"
-
-
-      # ==========================================
-      # 25. Verify APK Signature
-      # ==========================================
-
-      - name: Verify APK Signature
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          APK="app/build/outputs/apk/release/app-release.apk"
-
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" \
-            verify \
+          $ANDROID_HOME/build-tools/35.0.0/apksigner verify \
             --verbose \
-            "$APK"
-
-          echo "APK signature verified successfully."
+            android/app/build/outputs/apk/release/app-release.apk
 
 
-      # ==========================================
-      # 26. Rename APK and AAB
-      # ==========================================
-
-      - name: Rename Release Files
-        working-directory: BoyosHisab
+      # =========================================================
+      # STEP 23 - VERIFY AAB
+      # =========================================================
+      - name: Verify AAB
+        shell: bash
         run: |
           set -e
 
-          cp \
-            app/build/outputs/apk/release/app-release.apk \
-            "Boyos-Hisab-v1.0.apk"
+          test -f android/app/build/outputs/bundle/release/app-release.aab
+
+
+      # =========================================================
+      # STEP 24 - RENAME RELEASE FILES
+      # =========================================================
+      - name: Rename Release Files
+        shell: bash
+        run: |
+          set -e
+
+          mkdir -p release
 
           cp \
-            app/build/outputs/bundle/release/app-release.aab \
-            "Boyos-Hisab-v1.0.aab"
+            android/app/build/outputs/apk/release/app-release.apk \
+            release/Boyos-Hisab-Release.apk
 
-          echo "Release files renamed."
-
-          ls -lh \
-            "Boyos-Hisab-v1.0.apk" \
-            "Boyos-Hisab-v1.0.aab"
+          cp \
+            android/app/build/outputs/bundle/release/app-release.aab \
+            release/Boyos-Hisab-Release.aab
 
 
-      # ==========================================
-      # 27. Upload APK and AAB
-      # ==========================================
+      # =========================================================
+      # STEP 25 - SHOW FILES
+      # =========================================================
+      - name: Show Release Files
+        shell: bash
+        run: |
+          ls -lh release/
 
+
+      # =========================================================
+      # STEP 26 - UPLOAD APK AND AAB
+      # =========================================================
       - name: Upload Release APK and AAB
-        uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
         with:
           name: Boyos-Hisab-Release
-          path: |
-            BoyosHisab/Boyos-Hisab-v1.0.apk
-            BoyosHisab/Boyos-Hisab-v1.0.aab
+          path: release/
           if-no-files-found: error
-          retention-days: 30
 
-   
+
+      # =========================================================
+      # STEP 27 - COMPLETE
+      # =========================================================
+      - name: Build Complete
+        run: |
+          echo "========================================"
+          echo "BUILD SUCCESSFUL"
+          echo "APK: release/Boyos-Hisab-Release.apk"
+          echo "AAB: release/Boyos-Hisab-Release.aab"
+          echo "========================================"
