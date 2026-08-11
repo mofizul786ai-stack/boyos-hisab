@@ -6,9 +6,15 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
+
   build:
+
     name: Build Release APK and AAB
+
     runs-on: ubuntu-latest
 
     steps:
@@ -16,32 +22,42 @@ jobs:
       # ==========================================
       # 1. Checkout
       # ==========================================
+
       - name: Checkout
+
         uses: actions/checkout@v4
 
 
       # ==========================================
-      # 2. Java 17
+      # 2. Setup Java 17
       # ==========================================
+
       - name: Setup Java 17
+
         uses: actions/setup-java@v5
+
         with:
           distribution: temurin
           java-version: '17'
 
 
       # ==========================================
-      # 3. Android SDK
+      # 3. Setup Android SDK
       # ==========================================
+
       - name: Setup Android SDK
+
         uses: android-actions/setup-android@v3
 
 
       # ==========================================
       # 4. Install Android SDK
       # ==========================================
+
       - name: Install Android SDK
+
         run: |
+
           yes | sdkmanager --licenses || true
 
           sdkmanager \
@@ -53,8 +69,11 @@ jobs:
       # ==========================================
       # 5. Create Android Project
       # ==========================================
+
       - name: Create Android Project
+
         run: |
+
           set -e
 
           rm -rf BoyosHisab
@@ -71,171 +90,292 @@ jobs:
       # ==========================================
       # 6. Gradle Properties
       # ==========================================
+
       - name: Create Gradle Properties
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > gradle.properties <<'EOF'
+
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
           android.useAndroidX=true
           android.enableJetifier=true
           org.gradle.daemon=true
           org.gradle.parallel=true
           org.gradle.caching=true
+
           EOF
 
 
       # ==========================================
       # 7. Gradle Settings
       # ==========================================
+
       - name: Create Gradle Settings
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > settings.gradle <<'EOF'
+
           pluginManagement {
+
               repositories {
+
                   google()
                   mavenCentral()
                   gradlePluginPortal()
+
               }
+
           }
+
 
           dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+              repositoriesMode.set(
+                  RepositoriesMode.FAIL_ON_PROJECT_REPOS
+              )
 
               repositories {
+
                   google()
                   mavenCentral()
+
               }
+
           }
+
 
           rootProject.name = "BoyosHisab"
 
           include(":app")
+
           EOF
 
 
       # ==========================================
       # 8. Root Gradle
       # ==========================================
+
       - name: Create Root Gradle
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > build.gradle <<'EOF'
+
           plugins {
-              id 'com.android.application' version '8.6.1' apply false
+
+              id 'com.android.application'
+                  version '8.6.1'
+                  apply false
+
           }
+
           EOF
 
 
       # ==========================================
-      # 9. Generate Signing Key
+      # 9. Restore Permanent Signing Key
       # ==========================================
-      - name: Generate Release Signing Key
+
+      - name: Restore Signing Key
+
         working-directory: BoyosHisab
+
+        env:
+
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
         run: |
+
           set -e
 
-          keytool -genkeypair \
-            -v \
-            -keystore release.keystore \
-            -alias boyos-hisab \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass BoyosHisab2026 \
-            -keypass BoyosHisab2026 \
-            -dname "CN=Boyos Hisab, OU=App, O=Boyos Hisab, L=Guwahati, ST=Assam, C=IN"
+          if [ -z "$KEYSTORE_BASE64" ]; then
 
-          echo "Signing key created."
+            echo "ERROR: KEYSTORE_BASE64 secret is missing."
+
+            exit 1
+
+          fi
+
+
+          printf '%s' "$KEYSTORE_BASE64" \
+            | base64 --decode > release.keystore
+
+
+          if [ ! -s release.keystore ]; then
+
+            echo "ERROR: release.keystore is empty."
+
+            exit 1
+
+          fi
+
+
+          echo "Permanent signing keystore restored."
+
+          ls -lh release.keystore
 
 
       # ==========================================
-      # 10. App Gradle
+      # 10. Create App Gradle
       # ==========================================
+
       - name: Create App Gradle
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/build.gradle <<'EOF'
+
           plugins {
+
               id 'com.android.application'
+
           }
 
+
           android {
+
               namespace 'com.boyoshisab.app'
 
               compileSdk 35
 
+
               defaultConfig {
+
                   applicationId "com.boyoshisab.app"
+
                   minSdk 23
+
                   targetSdk 35
+
                   versionCode 1
+
                   versionName "1.0"
+
               }
 
+
               signingConfigs {
+
                   release {
+
                       storeFile file("../release.keystore")
-                      storePassword "BoyosHisab2026"
-                      keyAlias "boyos-hisab"
-                      keyPassword "BoyosHisab2026"
+
+                      storePassword System.getenv(
+                          "KEYSTORE_PASSWORD"
+                      )
+
+                      keyAlias System.getenv(
+                          "KEY_ALIAS"
+                      )
+
+                      keyPassword System.getenv(
+                          "KEY_PASSWORD"
+                      )
+
                   }
+
               }
+
 
               buildTypes {
 
                   debug {
+
                       minifyEnabled false
+
                   }
+
 
                   release {
+
                       signingConfig signingConfigs.release
+
                       minifyEnabled false
+
                       shrinkResources false
+
                   }
+
               }
+
           }
 
+
           dependencies {
+
               implementation 'com.google.android.gms:play-services-ads:24.5.0'
+
           }
+
           EOF
 
 
       # ==========================================
       # 11. Android Manifest
       # ==========================================
+
       - name: Create Android Manifest
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/AndroidManifest.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+          <manifest
+              xmlns:android="http://schemas.android.com/apk/res/android">
+
 
               <uses-permission
                   android:name="android.permission.INTERNET" />
 
+
               <application
+
                   android:allowBackup="true"
+
                   android:hardwareAccelerated="true"
+
                   android:label="বয়স হিসাব"
+
                   android:icon="@drawable/app_icon"
+
                   android:roundIcon="@drawable/app_icon"
+
                   android:supportsRtl="true"
+
                   android:theme="@style/AppTheme">
 
+
                   <!-- ================================= -->
-                  <!-- YOUR ADMOB APP ID -->
+                  <!-- ADMOB APP ID -->
                   <!-- ================================= -->
 
                   <meta-data
+
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
+
                       android:value="ca-app-pub-4629127200038980~5718715166" />
 
+
                   <activity
+
                       android:name=".MainActivity"
+
                       android:exported="true">
+
 
                       <intent-filter>
 
@@ -247,452 +387,612 @@ jobs:
 
                       </intent-filter>
 
+
                   </activity>
+
 
               </application>
 
+
           </manifest>
+
           EOF
 
 
       # ==========================================
       # 12. App Theme
       # ==========================================
+
       - name: Create App Theme
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/res/values/styles.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
           <resources>
 
+
               <style
+
                   name="AppTheme"
+
                   parent="android:style/Theme.Material.Light.NoActionBar">
 
-                  <item name="android:fontFamily">sans</item>
 
-                  <item name="android:colorAccent">#2196F3</item>
+                  <item name="android:fontFamily">
+                      sans
+                  </item>
 
-                  <item name="android:statusBarColor">#1565C0</item>
 
-                  <item name="android:navigationBarColor">#FFFFFF</item>
+                  <item name="android:colorAccent">
+                      #2196F3
+                  </item>
 
-                  <item name="android:windowLightStatusBar">false</item>
+
+                  <item name="android:statusBarColor">
+                      #1565C0
+                  </item>
+
+
+                  <item name="android:navigationBarColor">
+                      #FFFFFF
+                  </item>
+
+
+                  <item name="android:windowLightStatusBar">
+                      false
+                  </item>
+
 
               </style>
 
+
           </resources>
+
           EOF
 
 
       # ==========================================
       # 13. Main Layout
       # ==========================================
+
       - name: Create Main Layout
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/res/layout/activity_main.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
           <LinearLayout
+
               xmlns:android="http://schemas.android.com/apk/res/android"
+
               xmlns:ads="http://schemas.android.com/apk/res-auto"
+
               android:layout_width="match_parent"
+
               android:layout_height="match_parent"
+
               android:orientation="vertical"
+
               android:background="#FFFFFF">
 
+
               <WebView
+
                   android:id="@+id/webView"
+
                   android:layout_width="match_parent"
+
                   android:layout_height="0dp"
+
                   android:layout_weight="1"
+
                   android:overScrollMode="never" />
 
+
               <!-- ================================= -->
-              <!-- REAL ADMOB BANNER -->
+              <!-- ADMOB BANNER -->
               <!-- ================================= -->
+
 
               <com.google.android.gms.ads.AdView
+
                   android:id="@+id/adView"
+
                   android:layout_width="match_parent"
+
                   android:layout_height="wrap_content"
+
                   ads:adSize="BANNER"
+
                   ads:adUnitId="ca-app-pub-4629127200038980/4349793174" />
 
+
           </LinearLayout>
+
           EOF
 
 
       # ==========================================
       # 14. MainActivity
       # ==========================================
+
       - name: Create MainActivity
+
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
+
           package com.boyoshisab.app;
 
+
           import android.app.Activity;
+
           import android.os.Bundle;
+
           import android.webkit.WebSettings;
+
           import android.webkit.WebView;
+
           import android.webkit.WebViewClient;
 
+
+          import com.google.android.gms.ads.AdError;
+
           import com.google.android.gms.ads.AdRequest;
+
           import com.google.android.gms.ads.AdView;
+
+          import com.google.android.gms.ads.FullScreenContentCallback;
+
+          import com.google.android.gms.ads.LoadAdError;
+
           import com.google.android.gms.ads.MobileAds;
+
+          import com.google.android.gms.ads.interstitial.InterstitialAd;
+
+          import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+
 
           public class MainActivity extends Activity {
 
+
               private WebView webView;
+
               private AdView adView;
 
+              private InterstitialAd mInterstitialAd;
+
+
+              private boolean firstPageLoaded = false;
+
+
+              private long lastInterstitialTime = 0;
+
+
+              private static final long
+                      INTERSTITIAL_COOLDOWN = 60000;
+
+
               @Override
-              protected void onCreate(Bundle savedInstanceState) {
+
+              protected void onCreate(
+                      Bundle savedInstanceState) {
 
                   super.onCreate(savedInstanceState);
 
-                  setContentView(R.layout.activity_main);
 
-                  // =================================
+                  setContentView(
+                      R.layout.activity_main
+                  );
+
+
+                  // =====================================
                   // Initialize AdMob
-                  // =================================
+                  // =====================================
+
 
                   MobileAds.initialize(
-                          this,
-                          initializationStatus -> {}
+
+                      this,
+
+                      initializationStatus -> {}
+
                   );
 
-                  // =================================
+
+                  // =====================================
                   // WebView
-                  // =================================
+                  // =====================================
 
-                  webView = findViewById(R.id.webView);
 
-                  WebSettings settings = webView.getSettings();
+                  webView =
+                      findViewById(R.id.webView);
+
+
+                  WebSettings settings =
+                      webView.getSettings();
+
 
                   settings.setJavaScriptEnabled(true);
+
                   settings.setDomStorageEnabled(true);
+
                   settings.setDatabaseEnabled(true);
+
                   settings.setAllowFileAccess(true);
+
                   settings.setAllowContentAccess(true);
 
+
                   webView.setWebViewClient(
-                          new WebViewClient()
+                      new WebViewClient() {
+
+
+                          @Override
+
+                          public void onPageFinished(
+
+                              WebView view,
+
+                              String url) {
+
+
+                              super.onPageFinished(
+                                  view,
+                                  url
+                              );
+
+
+                              if (firstPageLoaded) {
+
+                                  showInterstitialIfReady();
+
+                              } else {
+
+                                  firstPageLoaded = true;
+
+                              }
+
+                          }
+
+                      }
                   );
 
-                  // =================================
+
+                  // =====================================
                   // Load Website
-                  // =================================
+                  // =====================================
+
 
                   webView.loadUrl(
-                          "file:///android_asset/index.html"
+
+                      "file:///android_asset/index.html"
+
                   );
 
-                  // =================================
-                  // AdMob Banner
-                  // =================================
 
-                  adView = findViewById(R.id.adView);
+                  // =====================================
+                  // Banner Ad
+                  // =====================================
 
-                  AdRequest adRequest =
-                          new AdRequest.Builder().build();
 
-                  adView.loadAd(adRequest);
+                  adView =
+                      findViewById(R.id.adView);
+
+
+                  AdRequest bannerRequest =
+                      new AdRequest.Builder().build();
+
+
+                  adView.loadAd(
+                      bannerRequest
+                  );
+
+
+                  // =====================================
+                  // Load Interstitial
+                  // =====================================
+
+
+                  loadInterstitialAd();
+
               }
 
 
+              // ==========================================
+              // Load Interstitial Ad
+              // ==========================================
+
+
+              private void loadInterstitialAd() {
+
+
+                  AdRequest adRequest =
+                      new AdRequest.Builder().build();
+
+
+                  InterstitialAd.load(
+
+                      this,
+
+                      "ca-app-pub-4629127200038980/5484192700",
+
+                      adRequest,
+
+
+                      new InterstitialAdLoadCallback() {
+
+
+                          @Override
+
+                          public void onAdLoaded(
+
+                              InterstitialAd interstitialAd) {
+
+
+                              mInterstitialAd =
+                                  interstitialAd;
+
+
+                              setupInterstitialCallbacks();
+
+                          }
+
+
+                          @Override
+
+                          public void onAdFailedToLoad(
+
+                              LoadAdError adError) {
+
+
+                              mInterstitialAd = null;
+
+                          }
+
+                      }
+
+                  );
+
+              }
+
+
+              // ==========================================
+              // Interstitial Callbacks
+              // ==========================================
+
+
+              private void setupInterstitialCallbacks() {
+
+
+                  if (mInterstitialAd == null) {
+
+                      return;
+
+                  }
+
+
+                  mInterstitialAd.setFullScreenContentCallback(
+
+                      new FullScreenContentCallback() {
+
+
+                          @Override
+
+                          public void onAdDismissedFullScreenContent() {
+
+
+                              mInterstitialAd = null;
+
+
+                              loadInterstitialAd();
+
+                          }
+
+
+                          @Override
+
+                          public void onAdFailedToShowFullScreenContent(
+
+                              AdError adError) {
+
+
+                              mInterstitialAd = null;
+
+
+                              loadInterstitialAd();
+
+                          }
+
+                      }
+
+                  );
+
+              }
+
+
+              // ==========================================
+              // Show Interstitial
+              // ==========================================
+
+
+              private void showInterstitialIfReady() {
+
+
+                  long currentTime =
+                      System.currentTimeMillis();
+
+
+                  if (
+
+                      currentTime -
+                      lastInterstitialTime
+                      < INTERSTITIAL_COOLDOWN
+
+                  ) {
+
+                      return;
+
+                  }
+
+
+                  if (mInterstitialAd != null) {
+
+
+                      lastInterstitialTime =
+                          currentTime;
+
+
+                      mInterstitialAd.show(this);
+
+                  }
+
+              }
+
+
+              // ==========================================
+              // Android Back Button
+              // ==========================================
+
+
               @Override
+
               public void onBackPressed() {
 
-                  if (webView != null &&
-                      webView.canGoBack()) {
+
+                  if (
+
+                      webView != null
+                      &&
+                      webView.canGoBack()
+
+                  ) {
+
 
                       webView.goBack();
 
+
                   } else {
+
 
                       super.onBackPressed();
 
                   }
+
               }
 
 
+              // ==========================================
+              // Pause
+              // ==========================================
+
+
               @Override
+
               protected void onPause() {
 
+
                   if (adView != null) {
+
                       adView.pause();
+
                   }
 
+
                   super.onPause();
+
               }
 
 
+              // ==========================================
+              // Resume
+              // ==========================================
+
+
               @Override
+
               protected void onResume() {
+
 
                   super.onResume();
 
+
                   if (adView != null) {
+
                       adView.resume();
+
                   }
+
               }
+
+
+              // ==========================================
+              // Destroy
+              // ==========================================
 
 
               @Override
+
               protected void onDestroy() {
 
+
                   if (adView != null) {
+
                       adView.destroy();
+
                   }
+
 
                   if (webView != null) {
+
                       webView.destroy();
+
                   }
 
+
                   super.onDestroy();
+
               }
 
           }
+
           EOF
 
 
       # ==========================================
       # 15. Copy App Logo
       # ==========================================
+
       - name: Copy App Logo
+
         run: |
+
           set -e
 
+
           if [ ! -f "icon.png" ]; then
+
             echo "ERROR: icon.png not found!"
+
             exit 1
+
           fi
+
 
           cp icon.png \
             BoyosHisab/app/src/main/res/drawable/app_icon.png
 
-          # Also copy icon for WebView
+
           cp icon.png \
-            BoyosHisab/app/src/main/assets/icon.png
-
-          echo "App logo copied."
-
-
-      # ==========================================
-      # 16. Copy index.html
-      # ==========================================
-      - name: Copy index.html
-        run: |
-          set -e
-
-          if [ ! -f "index.html" ]; then
-            echo "ERROR: index.html not found!"
-            exit 1
-          fi
-
-          cp index.html \
-            BoyosHisab/app/src/main/assets/index.html
-
-          echo "index.html copied."
-
-
-      # ==========================================
-      # 17. Copy Root CSS/JS
-      # ==========================================
-      - name: Copy Root Website Files
-        run: |
-          set -e
-
-          for file in \
-            style.css \
-            script.js \
-            birthday.html \
-            rashi.html \
-            more.html \
-            service-worker.js \
-            manifest.json
-          do
-
-            if [ -f "$file" ]; then
-
-              cp "$file" \
-                BoyosHisab/app/src/main/assets/
-
-              echo "Copied $file"
-
-            fi
-
-          done
-
-
-      # ==========================================
-      # 18. Copy Website Folders
-      # ==========================================
-      - name: Copy Website Folders
-        run: |
-          set -e
-
-          for folder in \
-            css \
-            js \
-            images \
-            assets \
-            img \
-            fonts
-          do
-
-            if [ -d "$folder" ]; then
-
-              cp -r "$folder" \
-                BoyosHisab/app/src/main/assets/
-
-              echo "Copied $folder"
-
-            fi
-
-          done
-
-
-      # ==========================================
-      # 19. Create Gradle Wrapper
-      # ==========================================
-      - name: Create Gradle Wrapper
-        working-directory: BoyosHisab
-        run: |
-          gradle wrapper \
-            --gradle-version 8.10.2
-
-
-      # ==========================================
-      # 20. Check Gradle
-      # ==========================================
-      - name: Check Gradle
-        working-directory: BoyosHisab
-        run: |
-          ./gradlew --version
-
-
-      # ==========================================
-      # 21. Build Release APK
-      # ==========================================
-      - name: Build Release APK
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          ./gradlew \
-            assembleRelease \
-            --stacktrace \
-            --no-daemon
-
-
-      # ==========================================
-      # 22. Build Release AAB
-      # ==========================================
-      - name: Build Release AAB
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          ./gradlew \
-            bundleRelease \
-            --stacktrace \
-            --no-daemon
-
-
-      # ==========================================
-      # 23. Verify APK
-      # ==========================================
-      - name: Verify APK Signature
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          APK="app/build/outputs/apk/release/app-release.apk"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: APK not found!"
-            exit 1
-          fi
-
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" \
-            verify \
-            --verbose \
-            "$APK"
-
-          echo "APK signature verified."
-
-
-      # ==========================================
-      # 24. Check AAB
-      # ==========================================
-      - name: Check AAB
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          AAB="app/build/outputs/bundle/release/app-release.aab"
-
-          if [ ! -f "$AAB" ]; then
-            echo "ERROR: AAB not found!"
-            exit 1
-          fi
-
-          echo "AAB found successfully."
-
-
-      # ==========================================
-      # 25. Prepare Output
-      # ==========================================
-      - name: Prepare Release Files
-        run: |
-          set -e
-
-          rm -rf output
-
-          mkdir -p output
-
-          cp \
-            BoyosHisab/app/build/outputs/apk/release/app-release.apk \
-            output/Boyos-Hisab-Release.apk
-
-          cp \
-            BoyosHisab/app/build/outputs/bundle/release/app-release.aab \
-            output/Boyos-Hisab-Release.aab
-
-          echo "===================================="
-          echo "Release files:"
-          echo "===================================="
-
-          ls -lh output/
-
-
-      # ==========================================
-      # 26. Upload APK + AAB
-      # ==========================================
-      - name: Upload Release APK and AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: Boyos-Hisab-Release
-          path: output/*
-          if-no-files-found: error
-
-
-      # ==========================================
-      # 27. Complete
-      # ==========================================
-      - name: Build Complete
-        run: |
-          echo "=========================================="
-          echo "       BOYOS HISAB BUILD SUCCESS"
-          echo "=========================================="
-          echo "Signed APK: YES"
-          echo "Signed AAB: YES"
-          echo "App Logo: YES"
-          echo "AdMob App ID: YES"
-          echo "AdMob Banner ID: YES"
-          echo "=========================================="
+            BoyosHisab/app/src/main/assets/i
