@@ -16,17 +16,17 @@ jobs:
 
     steps:
 
-      # ==========================================
-      # 1. Checkout
-      # ==========================================
+      # ==================================================
+      # 1. CHECKOUT
+      # ==================================================
 
       - name: Checkout
         uses: actions/checkout@v4
 
 
-      # ==========================================
-      # 2. Setup Java 17
-      # ==========================================
+      # ==================================================
+      # 2. JAVA 17
+      # ==================================================
 
       - name: Setup Java 17
         uses: actions/setup-java@v5
@@ -35,21 +35,20 @@ jobs:
           java-version: '17'
 
 
-      # ==========================================
-      # 3. Setup Android SDK
-      # ==========================================
+      # ==================================================
+      # 3. ANDROID SDK
+      # ==================================================
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
 
-      # ==========================================
-      # 4. Install Android SDK
-      # ==========================================
+      # ==================================================
+      # 4. INSTALL ANDROID SDK
+      # ==================================================
 
       - name: Install Android SDK
         run: |
-          set -e
 
           yes | sdkmanager --licenses || true
 
@@ -59,141 +58,212 @@ jobs:
             "build-tools;35.0.0"
 
 
-      # ==========================================
-      # 5. Create Android Project
-      # ==========================================
+      # ==================================================
+      # 5. CREATE ANDROID PROJECT
+      # ==================================================
 
       - name: Create Android Project
         run: |
+
           set -e
 
           rm -rf BoyosHisab
 
           mkdir -p BoyosHisab/app
+
           mkdir -p BoyosHisab/app/src/main/java/com/boyoshisab/app
+
           mkdir -p BoyosHisab/app/src/main/res/layout
+
           mkdir -p BoyosHisab/app/src/main/res/values
+
           mkdir -p BoyosHisab/app/src/main/res/drawable
+
           mkdir -p BoyosHisab/app/src/main/assets
 
 
-      # ==========================================
-      # 6. Restore Signing Key
-      # ==========================================
+      # ==================================================
+      # 6. RESTORE SIGNING KEY
+      # ==================================================
 
       - name: Restore Signing Key
         working-directory: BoyosHisab
+
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
         run: |
+
           set -e
+
+          echo "Checking KEYSTORE_BASE64..."
 
           if [ -z "$KEYSTORE_BASE64" ]; then
             echo "ERROR: KEYSTORE_BASE64 secret is empty!"
             exit 1
           fi
 
-          printf '%s' "$KEYSTORE_BASE64" \
-            | tr -d '\r\n ' \
-            | base64 --decode \
+          # Remove spaces, CR and LF
+          CLEAN_KEYSTORE=$(printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]')
+
+          if [ -z "$CLEAN_KEYSTORE" ]; then
+            echo "ERROR: Cleaned keystore value is empty!"
+            exit 1
+          fi
+
+          echo "Restoring release.keystore..."
+
+          # Ignore accidental non-base64 characters
+          printf '%s' "$CLEAN_KEYSTORE" \
+            | base64 --decode --ignore-garbage \
             > release.keystore
 
           if [ ! -s release.keystore ]; then
-            echo "ERROR: release.keystore is empty!"
+            echo "ERROR: release.keystore was not created!"
             exit 1
           fi
+
+          echo "Checking keystore..."
+
+          keytool \
+            -list \
+            -keystore release.keystore \
+            -storepass "$KEYSTORE_PASSWORD" \
+            >/dev/null 2>&1 || {
+
+              echo "ERROR: Keystore cannot be opened."
+              echo "Check KEYSTORE_BASE64 and KEYSTORE_PASSWORD."
+              exit 1
+          }
 
           echo "Signing key restored successfully."
 
           ls -lh release.keystore
 
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 
-      # ==========================================
-      # 7. Gradle Properties
-      # ==========================================
+
+      # ==================================================
+      # 7. GRADLE PROPERTIES
+      # ==================================================
 
       - name: Create Gradle Properties
         working-directory: BoyosHisab
+
         run: |
+
           cat > gradle.properties <<'EOF'
+
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+
           android.useAndroidX=true
+
           android.enableJetifier=true
+
           org.gradle.daemon=true
+
           org.gradle.parallel=true
+
           org.gradle.caching=true
+
           EOF
 
 
-      # ==========================================
-      # 8. Gradle Settings
-      # ==========================================
+      # ==================================================
+      # 8. GRADLE SETTINGS
+      # ==================================================
 
       - name: Create Gradle Settings
         working-directory: BoyosHisab
+
         run: |
+
           cat > settings.gradle <<'EOF'
+
           pluginManagement {
+
               repositories {
+
                   google()
+
                   mavenCentral()
+
                   gradlePluginPortal()
+
               }
+
           }
+
 
           dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+              repositoriesMode.set(
+                  RepositoriesMode.FAIL_ON_PROJECT_REPOS
+              )
 
               repositories {
+
                   google()
+
                   mavenCentral()
+
               }
+
           }
+
 
           rootProject.name = "BoyosHisab"
 
           include(":app")
+
           EOF
 
 
-      # ==========================================
-      # 9. Root Gradle
-      # ==========================================
+      # ==================================================
+      # 9. ROOT GRADLE
+      # ==================================================
 
       - name: Create Root Gradle
         working-directory: BoyosHisab
+
         run: |
+
           cat > build.gradle <<'EOF'
+
           plugins {
+
               id 'com.android.application' version '8.6.1' apply false
+
           }
+
           EOF
 
 
-      # ==========================================
-      # 10. App Gradle
-      # ==========================================
+      # ==================================================
+      # 10. APP GRADLE
+      # ==================================================
 
       - name: Create App Gradle
         working-directory: BoyosHisab
 
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-
         run: |
+
           cat > app/build.gradle <<'EOF'
+
           plugins {
+
               id 'com.android.application'
+
           }
+
 
           android {
 
               namespace 'com.boyoshisab.app'
 
               compileSdk 35
+
 
               defaultConfig {
 
@@ -206,7 +276,9 @@ jobs:
                   versionCode 1
 
                   versionName "1.0"
+
               }
+
 
               signingConfigs {
 
@@ -219,15 +291,20 @@ jobs:
                       keyAlias System.getenv("KEY_ALIAS")
 
                       keyPassword System.getenv("KEY_PASSWORD")
+
                   }
+
               }
+
 
               buildTypes {
 
                   debug {
 
                       minifyEnabled false
+
                   }
+
 
                   release {
 
@@ -236,32 +313,43 @@ jobs:
                       minifyEnabled false
 
                       shrinkResources false
+
                   }
+
               }
+
           }
+
 
           dependencies {
 
               implementation 'com.google.android.gms:play-services-ads:24.5.0'
+
           }
+
           EOF
 
 
-      # ==========================================
-      # 11. Android Manifest
-      # ==========================================
+      # ==================================================
+      # 11. ANDROID MANIFEST
+      # ==================================================
 
       - name: Create Android Manifest
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/AndroidManifest.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
           <manifest
               xmlns:android="http://schemas.android.com/apk/res/android">
 
+
               <uses-permission
                   android:name="android.permission.INTERNET" />
+
 
               <application
 
@@ -279,9 +367,8 @@ jobs:
 
                   android:theme="@style/AppTheme">
 
-                  <!-- ================================= -->
-                  <!-- AdMob App ID -->
-                  <!-- ================================= -->
+
+                  <!-- ADMOB APP ID -->
 
                   <meta-data
 
@@ -296,6 +383,7 @@ jobs:
 
                       android:exported="true">
 
+
                       <intent-filter>
 
                           <action
@@ -306,22 +394,29 @@ jobs:
 
                       </intent-filter>
 
+
                   </activity>
+
 
               </application>
 
+
           </manifest>
+
           EOF
 
 
-      # ==========================================
-      # 12. App Theme
-      # ==========================================
+      # ==================================================
+      # 12. APP THEME
+      # ==================================================
 
       - name: Create App Theme
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/res/values/styles.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
           <resources>
@@ -343,17 +438,21 @@ jobs:
               </style>
 
           </resources>
+
           EOF
 
 
-      # ==========================================
-      # 13. Main Layout
-      # ==========================================
+      # ==================================================
+      # 13. MAIN LAYOUT
+      # ==================================================
 
       - name: Create Main Layout
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/res/layout/activity_main.xml <<'EOF'
+
           <?xml version="1.0" encoding="utf-8"?>
 
           <LinearLayout
@@ -370,6 +469,7 @@ jobs:
 
               android:background="#FFFFFF">
 
+
               <WebView
 
                   android:id="@+id/webView"
@@ -382,9 +482,8 @@ jobs:
 
                   android:overScrollMode="never" />
 
-              <!-- ================================= -->
-              <!-- AdMob Banner -->
-              <!-- ================================= -->
+
+              <!-- ADMOB BANNER -->
 
               <com.google.android.gms.ads.AdView
 
@@ -398,34 +497,54 @@ jobs:
 
                   ads:adUnitId="ca-app-pub-4629127200038980/4349793174" />
 
+
           </LinearLayout>
+
           EOF
 
 
-      # ==========================================
-      # 14. MainActivity
-      # ==========================================
+      # ==================================================
+      # 14. MAIN ACTIVITY
+      # ==================================================
 
       - name: Create MainActivity
         working-directory: BoyosHisab
+
         run: |
+
           cat > app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
+
           package com.boyoshisab.app;
 
+
           import android.app.Activity;
+
           import android.os.Bundle;
+
+          import android.os.Handler;
+
           import android.webkit.WebSettings;
+
           import android.webkit.WebView;
+
           import android.webkit.WebViewClient;
 
+
           import com.google.android.gms.ads.AdRequest;
+
           import com.google.android.gms.ads.AdView;
+
           import com.google.android.gms.ads.MobileAds;
+
           import com.google.android.gms.ads.LoadAdError;
+
           import com.google.android.gms.ads.interstitial.InterstitialAd;
+
           import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
+
           public class MainActivity extends Activity {
+
 
               private WebView webView;
 
@@ -433,36 +552,46 @@ jobs:
 
               private InterstitialAd interstitialAd;
 
+
               private static final String INTERSTITIAL_ID =
-                      "ca-app-pub-4629127200038980/5484192700";
+                  "ca-app-pub-4629127200038980/5484192700";
+
+
+              private final Handler handler =
+                  new Handler();
 
 
               @Override
+
               protected void onCreate(Bundle savedInstanceState) {
 
                   super.onCreate(savedInstanceState);
 
+
                   setContentView(R.layout.activity_main);
 
 
-                  // =================================
-                  // Initialize AdMob
-                  // =================================
+                  // =====================================
+                  // ADMOB INITIALIZE
+                  // =====================================
 
                   MobileAds.initialize(
-                          this,
-                          initializationStatus -> {}
+                      this,
+                      initializationStatus -> {}
                   );
 
 
-                  // =================================
-                  // WebView
-                  // =================================
+                  // =====================================
+                  // WEBVIEW
+                  // =====================================
 
-                  webView = findViewById(R.id.webView);
+                  webView =
+                      findViewById(R.id.webView);
+
 
                   WebSettings settings =
-                          webView.getSettings();
+                      webView.getSettings();
+
 
                   settings.setJavaScriptEnabled(true);
 
@@ -474,226 +603,295 @@ jobs:
 
                   settings.setAllowContentAccess(true);
 
+
                   webView.setWebViewClient(
-                          new WebViewClient()
+                      new WebViewClient()
                   );
 
-
-                  // =================================
-                  // Load Website
-                  // =================================
 
                   webView.loadUrl(
-                          "file:///android_asset/index.html"
+                      "file:///android_asset/index.html"
                   );
 
 
-                  // =================================
-                  // Banner Ad
-                  // =================================
+                  // =====================================
+                  // BANNER
+                  // =====================================
 
                   adView =
-                          findViewById(R.id.adView);
+                      findViewById(R.id.adView);
+
 
                   AdRequest bannerRequest =
-                          new AdRequest.Builder().build();
+                      new AdRequest.Builder().build();
+
 
                   adView.loadAd(bannerRequest);
 
 
-                  // =================================
-                  // Load Interstitial
-                  // =================================
+                  // =====================================
+                  // INTERSTITIAL LOAD
+                  // =====================================
 
                   loadInterstitial();
+
+
+                  // =====================================
+                  // SHOW INTERSTITIAL AFTER 30 SECONDS
+                  // =====================================
+
+                  handler.postDelayed(
+                      () -> showInterstitial(),
+                      30000
+                  );
+
               }
 
 
-              // =================================
-              // Load Interstitial
-              // =================================
+              // =====================================
+              // LOAD INTERSTITIAL
+              // =====================================
 
               private void loadInterstitial() {
 
+
                   AdRequest request =
-                          new AdRequest.Builder().build();
+                      new AdRequest.Builder().build();
+
 
                   InterstitialAd.load(
 
-                          this,
+                      this,
 
-                          INTERSTITIAL_ID,
+                      INTERSTITIAL_ID,
 
-                          request,
+                      request,
 
-                          new InterstitialAdLoadCallback() {
-
-                              @Override
-                              public void onAdLoaded(
-                                      InterstitialAd ad) {
-
-                                  interstitialAd = ad;
-                              }
+                      new InterstitialAdLoadCallback() {
 
 
-                              @Override
-                              public void onAdFailedToLoad(
-                                      LoadAdError adError) {
+                          @Override
 
-                                  interstitialAd = null;
-                              }
+                          public void onAdLoaded(
+                              InterstitialAd ad
+                          ) {
+
+                              interstitialAd = ad;
+
                           }
+
+
+                          @Override
+
+                          public void onAdFailedToLoad(
+                              LoadAdError adError
+                          ) {
+
+                              interstitialAd = null;
+
+                          }
+
+                      }
+
                   );
+
               }
 
 
-              // =================================
-              // Show Interstitial
-              // =================================
+              // =====================================
+              // SHOW INTERSTITIAL
+              // =====================================
 
               private void showInterstitial() {
 
+
                   if (interstitialAd != null) {
+
 
                       interstitialAd.show(this);
 
+
                       interstitialAd = null;
 
+
                       loadInterstitial();
+
                   }
+
               }
 
 
-              // =================================
-              // Back Button
-              // =================================
+              // =====================================
+              // BACK BUTTON
+              // =====================================
 
               @Override
+
               public void onBackPressed() {
 
+
                   if (webView != null &&
-                          webView.canGoBack()) {
+                      webView.canGoBack()) {
+
 
                       webView.goBack();
 
+
                   } else {
 
-                      // Show interstitial before exit
-                      if (interstitialAd != null) {
 
-                          showInterstitial();
+                      super.onBackPressed();
 
-                      } else {
-
-                          super.onBackPressed();
-                      }
                   }
+
               }
 
 
-              // =================================
-              // Pause
-              // =================================
+              // =====================================
+              // PAUSE
+              // =====================================
 
               @Override
+
               protected void onPause() {
+
 
                   if (adView != null) {
 
                       adView.pause();
+
                   }
 
+
                   super.onPause();
+
               }
 
 
-              // =================================
-              // Resume
-              // =================================
+              // =====================================
+              // RESUME
+              // =====================================
 
               @Override
+
               protected void onResume() {
 
+
                   super.onResume();
+
 
                   if (adView != null) {
 
                       adView.resume();
+
                   }
+
               }
 
 
-              // =================================
-              // Destroy
-              // =================================
+              // =====================================
+              // DESTROY
+              // =====================================
 
               @Override
+
               protected void onDestroy() {
+
+
+                  handler.removeCallbacksAndMessages(null);
+
 
                   if (adView != null) {
 
                       adView.destroy();
+
                   }
+
 
                   if (webView != null) {
 
                       webView.destroy();
+
                   }
 
+
                   super.onDestroy();
+
               }
+
           }
+
           EOF
 
 
-      # ==========================================
-      # 15. Copy App Logo
-      # ==========================================
+      # ==================================================
+      # 15. COPY APP LOGO
+      # ==================================================
 
       - name: Copy App Logo
+
         run: |
+
           set -e
 
+
           if [ ! -f "icon.png" ]; then
+
             echo "ERROR: icon.png not found!"
+
             exit 1
+
           fi
+
 
           cp icon.png \
             BoyosHisab/app/src/main/res/drawable/app_icon.png
 
+
           cp icon.png \
             BoyosHisab/app/src/main/assets/icon.png
 
-          echo "App logo copied successfully."
+
+          echo "App logo copied."
 
 
-      # ==========================================
-      # 16. Copy index.html
-      # ==========================================
+      # ==================================================
+      # 16. COPY INDEX
+      # ==================================================
 
       - name: Copy index.html
+
         run: |
+
           set -e
 
+
           if [ ! -f "index.html" ]; then
+
             echo "ERROR: index.html not found!"
+
             exit 1
+
           fi
+
 
           cp index.html \
             BoyosHisab/app/src/main/assets/index.html
 
-          echo "index.html copied successfully."
+
+          echo "index.html copied."
 
 
-      # ==========================================
-      # 17. Copy Website Files
-      # ==========================================
+      # ==================================================
+      # 17. COPY WEBSITE FILES
+      # ==================================================
 
       - name: Copy Website Files
+
         run: |
+
           set -e
+
 
           for file in \
             style.css \
@@ -703,6 +901,7 @@ jobs:
             more.html \
             service-worker.js \
             manifest.json
+
           do
 
             if [ -f "$file" ]; then
@@ -717,13 +916,16 @@ jobs:
           done
 
 
-      # ==========================================
-      # 18. Copy Website Folders
-      # ==========================================
+      # ==================================================
+      # 18. COPY WEBSITE FOLDERS
+      # ==================================================
 
       - name: Copy Website Folders
+
         run: |
+
           set -e
+
 
           for folder in \
             css \
@@ -732,6 +934,7 @@ jobs:
             assets \
             img \
             fonts
+
           do
 
             if [ -d "$folder" ]; then
@@ -746,59 +949,11 @@ jobs:
           done
 
 
-      # ==========================================
-      # 19. Create Gradle Wrapper
-      # ==========================================
+      # ==================================================
+      # 19. CREATE GRADLE WRAPPER
+      # ==================================================
 
       - name: Create Gradle Wrapper
+
         working-directory: BoyosHisab
-        run: |
-          set -e
-
-          gradle wrapper \
-            --gradle-version 8.10.2
-
-
-      # ==========================================
-      # 20. Check Gradle
-      # ==========================================
-
-      - name: Check Gradle
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          ./gradlew --version
-
-
-      # ==========================================
-      # 21. Build Release APK
-      # ==========================================
-
-      - name: Build Release APK
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          ./gradlew \
-            assembleRelease \
-            --stacktrace \
-            --no-daemon
-
-
-      # ==========================================
-      # 22. Build Release AAB
-      # ==========================================
-
-      - name: Build Release AAB
-        working-directory: BoyosHisab
-        run: |
-          set -e
-
-          ./gradlew \
-            bundleRelease \
-            --stacktrace \
-            --no-daemon
-
-
-      # =
+        
