@@ -704,4 +704,97 @@ jobs:
 
 
       # ==========================================
-      
+      # 23. Build Release AAB
+      # ==========================================
+      - name: Build Release AAB
+        working-directory: BoyosHisab
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -e
+
+          ./gradlew \
+            bundleRelease \
+            --stacktrace \
+            --no-daemon
+
+
+      # ==========================================
+      # 24. Verify APK
+      # ==========================================
+      - name: Verify APK Signature
+        working-directory: BoyosHisab
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -e
+
+          APK="app/build/outputs/apk/release/app-release.apk"
+
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: APK not found!"
+            exit 1
+          fi
+
+          $ANDROID_HOME/build-tools/35.0.0/apksigner \
+            verify \
+            --verbose \
+            "$APK"
+
+          echo "APK signature verified successfully."
+
+
+      # ==========================================
+      # 25. Verify AAB
+      # ==========================================
+      - name: Verify AAB
+        working-directory: BoyosHisab
+        run: |
+          set -e
+
+          AAB="app/build/outputs/bundle/release/app-release.aab"
+
+          if [ ! -f "$AAB" ]; then
+            echo "ERROR: AAB not found!"
+            exit 1
+          fi
+
+          echo "AAB created successfully."
+
+          ls -lh "$AAB"
+
+
+      # ==========================================
+      # 26. Prepare Artifacts
+      # ==========================================
+      - name: Prepare Artifacts
+        working-directory: BoyosHisab
+        run: |
+          set -e
+
+          mkdir -p release-files
+
+          cp \
+            app/build/outputs/apk/release/app-release.apk \
+            release-files/Boyos-Hisab-release.apk
+
+          cp \
+            app/build/outputs/bundle/release/app-release.aab \
+            release-files/Boyos-Hisab-release.aab
+
+          ls -lh release-files
+
+
+      # ==========================================
+      # 27. Upload APK and AAB
+      # ==========================================
+      - name: Upload Release Files
+        uses: actions/upload-artifact@v4
+        with:
+          name: Boyos-Hisab-Release
+          path: |
+            BoyosHisab/release-files/Boyos-Hisab-release.apk
+            BoyosHisab/release-files/Boyos-Hisab-release.aab
+          if-no-files-found: error
