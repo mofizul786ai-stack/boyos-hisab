@@ -71,8 +71,7 @@ jobs:
         run: |
           cat > android/gradle.properties <<'EOF'
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.useAndroidX=true
-          android.nonTransitiveRClass=true
+          android.useAndroidX=false
           EOF
 
       - name: Create App Gradle
@@ -113,8 +112,6 @@ jobs:
           }
 
           dependencies {
-              implementation 'androidx.appcompat:appcompat:1.7.0'
-              implementation 'androidx.webkit:webkit:1.12.1'
           }
           EOF
 
@@ -130,7 +127,8 @@ jobs:
                   android:allowBackup="true"
                   android:label="বয়স হিসাব"
                   android:supportsRtl="true"
-                  android:theme="@style/AppTheme">
+                  android:theme="@style/AppTheme"
+                  android:icon="@drawable/icon">
 
                   <activity
                       android:name=".MainActivity"
@@ -154,13 +152,11 @@ jobs:
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
 
-              <style name="AppTheme"
-                  parent="Theme.AppCompat.Light.NoActionBar">
-
+              <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
                   <item name="android:fontFamily">sans</item>
                   <item name="android:statusBarColor">#1565C0</item>
                   <item name="android:navigationBarColor">#000000</item>
-
+                  <item name="android:windowLightStatusBar">false</item>
               </style>
 
           </resources>
@@ -171,19 +167,16 @@ jobs:
           cat > android/app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
           package com.boyoshisab.app;
 
-          import android.annotation.SuppressLint;
+          import android.app.Activity;
           import android.os.Bundle;
           import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
 
-          import androidx.appcompat.app.AppCompatActivity;
-
-          public class MainActivity extends AppCompatActivity {
+          public class MainActivity extends Activity {
 
               private WebView webView;
 
-              @SuppressLint("SetJavaScriptEnabled")
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
@@ -199,70 +192,67 @@ jobs:
 
                   webView.setWebViewClient(new WebViewClient());
 
-                  webView.loadUrl(
-                      "file:///android_asset/index.html"
-                  );
+                  webView.loadUrl("file:///android_asset/index.html");
 
                   setContentView(webView);
               }
 
               @Override
               public void onBackPressed() {
-
                   if (webView.canGoBack()) {
                       webView.goBack();
                   } else {
                       super.onBackPressed();
                   }
-
               }
           }
           EOF
 
       - name: Copy Website Files
         run: |
-
-          # Main HTML
           if [ -f index.html ]; then
             cp index.html android/app/src/main/assets/
           fi
 
-          # Other HTML files
-          for file in birthday.html rashi.html more.html; do
-            if [ -f "$file" ]; then
-              cp "$file" android/app/src/main/assets/
-            fi
-          done
-
-          # CSS
           if [ -f style.css ]; then
             cp style.css android/app/src/main/assets/
           fi
 
-          # JavaScript
           if [ -f script.js ]; then
             cp script.js android/app/src/main/assets/
           fi
 
-          # Manifest
+          if [ -f birthday.html ]; then
+            cp birthday.html android/app/src/main/assets/
+          fi
+
+          if [ -f rashi.html ]; then
+            cp rashi.html android/app/src/main/assets/
+          fi
+
+          if [ -f more.html ]; then
+            cp more.html android/app/src/main/assets/
+          fi
+
           if [ -f manifest.json ]; then
             cp manifest.json android/app/src/main/assets/
           fi
 
-          # Service Worker
+          if [ -f service-worker.js ]; then
+            cp service-worker.js android/app/src/main/assets/
+          fi
+
           if [ -f sw.js ]; then
             cp sw.js android/app/src/main/assets/
           fi
 
-          # ⭐ IMPORTANT: LOGO
-          if [ -f icon.png ]; then
-            cp icon.png android/app/src/main/assets/
-          fi
-
-      - name: Check Website Files
+      - name: Copy App Logo
         run: |
-          echo "===== Website files ====="
-          ls -lah android/app/src/main/assets/
+          if [ -f icon.png ]; then
+            cp icon.png android/app/src/main/res/drawable/icon.png
+          else
+            echo "icon.png not found"
+          fi
 
       - name: Create Signing Key
         run: |
@@ -298,12 +288,12 @@ jobs:
       - name: Build Release APK
         working-directory: android
         run: |
-          ./gradlew clean assembleRelease --stacktrace
+          ./gradlew clean assembleRelease
 
       - name: Build Release AAB
         working-directory: android
         run: |
-          ./gradlew bundleRelease --stacktrace
+          ./gradlew bundleRelease
 
       - name: Verify APK
         run: |
