@@ -12,79 +12,38 @@ jobs:
 
     steps:
 
-      # --------------------------------------------------
-      # 1. Checkout
-      # --------------------------------------------------
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-
-      # --------------------------------------------------
-      # 2. Java 17
-      # --------------------------------------------------
       - name: Setup Java 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-
-      # --------------------------------------------------
-      # 3. Android SDK
-      # --------------------------------------------------
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-
-      # --------------------------------------------------
-      # 4. Install Android SDK
-      # --------------------------------------------------
       - name: Install Android SDK
         run: |
           yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
-          sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0"
-
-
-      # --------------------------------------------------
-      # 5. Create Android folders
-      # --------------------------------------------------
       - name: Create Android Project
         run: |
           mkdir -p android/app/src/main/java/com/boyoshisab/app
           mkdir -p android/app/src/main/assets
           mkdir -p android/app/src/main/res/values
+          mkdir -p android/app/src/main/res/drawable
 
-
-      # --------------------------------------------------
-      # 6. Root Gradle
-      # --------------------------------------------------
       - name: Create Root Gradle
         run: |
           cat > android/build.gradle <<'EOF'
           plugins {
               id 'com.android.application' version '8.7.3' apply false
           }
-
-          allprojects {
-              configurations.all {
-                  exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
-                  exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
-
-                  resolutionStrategy {
-                      force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
-                  }
-              }
-          }
           EOF
 
-
-      # --------------------------------------------------
-      # 7. Settings Gradle
-      # --------------------------------------------------
       - name: Create Settings
         run: |
           cat > android/settings.gradle <<'EOF'
@@ -98,7 +57,6 @@ jobs:
 
           dependencyResolutionManagement {
               repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-
               repositories {
                   google()
                   mavenCentral()
@@ -106,14 +64,9 @@ jobs:
           }
 
           rootProject.name = "BoyosHisab"
-
           include ':app'
           EOF
 
-
-      # --------------------------------------------------
-      # 8. Gradle Properties
-      # --------------------------------------------------
       - name: Create Gradle Properties
         run: |
           cat > android/gradle.properties <<'EOF'
@@ -122,10 +75,6 @@ jobs:
           android.nonTransitiveRClass=true
           EOF
 
-
-      # --------------------------------------------------
-      # 9. App Gradle
-      # --------------------------------------------------
       - name: Create App Gradle
         run: |
           cat > android/app/build.gradle <<'EOF'
@@ -135,96 +84,61 @@ jobs:
 
           android {
               namespace 'com.boyoshisab.app'
-
               compileSdk 35
 
               defaultConfig {
                   applicationId 'com.boyoshisab.app'
-
                   minSdk 23
-
                   targetSdk 35
-
                   versionCode 1
-
                   versionName "1.0"
               }
 
               signingConfigs {
-
                   release {
-
                       storeFile file("${rootProject.projectDir}/release-key.jks")
-
                       storePassword "BoyosHisab2026"
-
                       keyAlias "boyoshisab"
-
                       keyPassword "BoyosHisab2026"
                   }
               }
 
               buildTypes {
-
                   release {
-
                       minifyEnabled false
-
                       shrinkResources false
-
                       signingConfig signingConfigs.release
                   }
               }
           }
 
           dependencies {
-
               implementation 'androidx.appcompat:appcompat:1.7.0'
-
               implementation 'androidx.webkit:webkit:1.12.1'
-
-              implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
           }
           EOF
 
-
-      # --------------------------------------------------
-      # 10. Android Manifest
-      # --------------------------------------------------
       - name: Create Manifest
         run: |
           cat > android/app/src/main/AndroidManifest.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-              <uses-permission
-                  android:name="android.permission.INTERNET" />
+              <uses-permission android:name="android.permission.INTERNET"/>
 
               <application
-
                   android:allowBackup="true"
-
                   android:label="বয়স হিসাব"
-
                   android:supportsRtl="true"
-
                   android:theme="@style/AppTheme">
 
                   <activity
-
                       android:name=".MainActivity"
-
                       android:exported="true">
 
                       <intent-filter>
-
-                          <action
-                              android:name="android.intent.action.MAIN" />
-
-                          <category
-                              android:name="android.intent.category.LAUNCHER" />
-
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
                       </intent-filter>
 
                   </activity>
@@ -234,44 +148,24 @@ jobs:
           </manifest>
           EOF
 
-
-      # --------------------------------------------------
-      # 11. Theme
-      # --------------------------------------------------
       - name: Create Theme
         run: |
           cat > android/app/src/main/res/values/styles.xml <<'EOF'
           <?xml version="1.0" encoding="utf-8"?>
-
           <resources>
 
-              <style
-                  name="AppTheme"
+              <style name="AppTheme"
                   parent="Theme.AppCompat.Light.NoActionBar">
 
                   <item name="android:fontFamily">sans</item>
-
-                  <item name="android:statusBarColor">
-                      #1565C0
-                  </item>
-
-                  <item name="android:navigationBarColor">
-                      #000000
-                  </item>
-
-                  <item name="android:windowLightStatusBar">
-                      false
-                  </item>
+                  <item name="android:statusBarColor">#1565C0</item>
+                  <item name="android:navigationBarColor">#000000</item>
 
               </style>
 
           </resources>
           EOF
 
-
-      # --------------------------------------------------
-      # 12. MainActivity
-      # --------------------------------------------------
       - name: Create MainActivity
         run: |
           cat > android/app/src/main/java/com/boyoshisab/app/MainActivity.java <<'EOF'
@@ -292,7 +186,6 @@ jobs:
               @SuppressLint("SetJavaScriptEnabled")
               @Override
               protected void onCreate(Bundle savedInstanceState) {
-
                   super.onCreate(savedInstanceState);
 
                   webView = new WebView(this);
@@ -300,22 +193,11 @@ jobs:
                   WebSettings settings = webView.getSettings();
 
                   settings.setJavaScriptEnabled(true);
-
                   settings.setDomStorageEnabled(true);
-
                   settings.setAllowFileAccess(true);
-
                   settings.setAllowContentAccess(true);
 
-                  settings.setBuiltInZoomControls(false);
-
-                  settings.setDisplayZoomControls(false);
-
-                  settings.setSupportZoom(false);
-
-                  webView.setWebViewClient(
-                      new WebViewClient()
-                  );
+                  webView.setWebViewClient(new WebViewClient());
 
                   webView.loadUrl(
                       "file:///android_asset/index.html"
@@ -328,207 +210,62 @@ jobs:
               public void onBackPressed() {
 
                   if (webView.canGoBack()) {
-
                       webView.goBack();
-
                   } else {
-
                       super.onBackPressed();
                   }
+
               }
           }
           EOF
 
-
-      # --------------------------------------------------
-      # 13. Copy index.html
-      # --------------------------------------------------
-      - name: Copy index.html
-        run: |
-
-          if [ -f index.html ]; then
-
-            cp index.html \
-              android/app/src/main/assets/index.html
-
-          else
-
-            cat > android/app/src/main/assets/index.html <<'EOF'
-          <!DOCTYPE html>
-
-          <html lang="bn">
-
-          <head>
-
-              <meta charset="UTF-8">
-
-              <meta
-                  name="viewport"
-                  content="width=device-width,initial-scale=1.0">
-
-              <title>বয়স হিসাব</title>
-
-          </head>
-
-          <body>
-
-              <h1>🎂 বয়স হিসাব</h1>
-
-              <p>আপনার সঠিক বয়স জানুন</p>
-
-              <input
-                  type="date"
-                  id="birthDate">
-
-              <button
-                  onclick="calculateAge()">
-                  বয়স হিসাব করুন
-              </button>
-
-              <h2 id="result">
-                  জন্ম তারিখ দিন
-              </h2>
-
-              <script>
-
-              function calculateAge() {
-
-                  const value =
-                      document.getElementById(
-                          "birthDate"
-                      ).value;
-
-                  if (!value) {
-
-                      document.getElementById(
-                          "result"
-                      ).innerText =
-                          "জন্ম তারিখ নির্বাচন করুন";
-
-                      return;
-                  }
-
-                  const birth =
-                      new Date(value);
-
-                  const today =
-                      new Date();
-
-                  let years =
-                      today.getFullYear()
-                      - birth.getFullYear();
-
-                  let months =
-                      today.getMonth()
-                      - birth.getMonth();
-
-                  let days =
-                      today.getDate()
-                      - birth.getDate();
-
-                  if (days < 0) {
-
-                      months--;
-
-                      days += new Date(
-                          today.getFullYear(),
-                          today.getMonth(),
-                          0
-                      ).getDate();
-                  }
-
-                  if (months < 0) {
-
-                      years--;
-
-                      months += 12;
-                  }
-
-                  document.getElementById(
-                      "result"
-                  ).innerText =
-
-                      years + " বছর " +
-
-                      months + " মাস " +
-
-                      days + " দিন";
-              }
-
-              </script>
-
-          </body>
-
-          </html>
-          EOF
-
-          fi
-
-
-      # --------------------------------------------------
-      # 14. Copy ALL Website Files
-      # --------------------------------------------------
       - name: Copy Website Files
         run: |
 
-          for file in \
-            style.css \
-            script.js \
-            birthday.html \
-            rashi.html \
-            more.html \
-            manifest.json \
-            service-worker.js \
-            sw.js
-          do
-
-            if [ -f "$file" ]; then
-
-              cp "$file" \
-                android/app/src/main/assets/
-
-            fi
-
-          done
-
-
-      # --------------------------------------------------
-      # 15. Copy Logo
-      # --------------------------------------------------
-      - name: Copy Logo
-        run: |
-
-          if [ -f icon.png ]; then
-
-            cp icon.png \
-              android/app/src/main/assets/icon.png
-
-            echo "Logo copied successfully."
-
-          else
-
-            echo "WARNING: icon.png not found."
-
+          # Main HTML
+          if [ -f index.html ]; then
+            cp index.html android/app/src/main/assets/
           fi
 
+          # Other HTML files
+          for file in birthday.html rashi.html more.html; do
+            if [ -f "$file" ]; then
+              cp "$file" android/app/src/main/assets/
+            fi
+          done
 
-      # --------------------------------------------------
-      # 16. Show Assets
-      # --------------------------------------------------
-      - name: Check Website Assets
+          # CSS
+          if [ -f style.css ]; then
+            cp style.css android/app/src/main/assets/
+          fi
+
+          # JavaScript
+          if [ -f script.js ]; then
+            cp script.js android/app/src/main/assets/
+          fi
+
+          # Manifest
+          if [ -f manifest.json ]; then
+            cp manifest.json android/app/src/main/assets/
+          fi
+
+          # Service Worker
+          if [ -f sw.js ]; then
+            cp sw.js android/app/src/main/assets/
+          fi
+
+          # ⭐ IMPORTANT: LOGO
+          if [ -f icon.png ]; then
+            cp icon.png android/app/src/main/assets/
+          fi
+
+      - name: Check Website Files
         run: |
-
-          echo "Files inside APK assets:"
-
+          echo "===== Website files ====="
           ls -lah android/app/src/main/assets/
 
-
-      # --------------------------------------------------
-      # 17. Create Signing Key
-      # --------------------------------------------------
       - name: Create Signing Key
         run: |
-
           keytool -genkeypair \
             -v \
             -keystore android/release-key.jks \
@@ -541,13 +278,8 @@ jobs:
             -validity 10000 \
             -dname "CN=Boyos Hisab, OU=App, O=Boyos Hisab, L=Guwahati, ST=Assam, C=IN"
 
-
-      # --------------------------------------------------
-      # 18. Check Signing Key
-      # --------------------------------------------------
       - name: Check Signing Key
         run: |
-
           test -f android/release-key.jks
 
           keytool -list \
@@ -555,95 +287,48 @@ jobs:
             -storepass "BoyosHisab2026" \
             -alias "boyoshisab"
 
-
-      # --------------------------------------------------
-      # 19. Setup Gradle
-      # --------------------------------------------------
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-
-      # --------------------------------------------------
-      # 20. Create Gradle Wrapper
-      # --------------------------------------------------
       - name: Create Gradle Wrapper
         working-directory: android
         run: |
+          gradle wrapper --gradle-version 8.9
 
-          gradle wrapper \
-            --gradle-version 8.9
-
-
-      # --------------------------------------------------
-      # 21. Build APK
-      # --------------------------------------------------
       - name: Build Release APK
         working-directory: android
         run: |
-
           ./gradlew clean assembleRelease --stacktrace
 
-
-      # --------------------------------------------------
-      # 22. Build AAB
-      # --------------------------------------------------
       - name: Build Release AAB
         working-directory: android
         run: |
-
           ./gradlew bundleRelease --stacktrace
 
-
-      # --------------------------------------------------
-      # 23. Verify APK
-      # --------------------------------------------------
       - name: Verify APK
         run: |
-
-          test -f \
-            android/app/build/outputs/apk/release/app-release.apk
+          test -f android/app/build/outputs/apk/release/app-release.apk
 
           $ANDROID_HOME/build-tools/35.0.0/apksigner verify \
             android/app/build/outputs/apk/release/app-release.apk
 
-
-      # --------------------------------------------------
-      # 24. Verify AAB
-      # --------------------------------------------------
       - name: Verify AAB
         run: |
+          test -f android/app/build/outputs/bundle/release/app-release.aab
 
-          test -f \
-            android/app/build/outputs/bundle/release/app-release.aab
-
-
-      # --------------------------------------------------
-      # 25. Prepare Release Files
-      # --------------------------------------------------
       - name: Prepare Release Files
         run: |
-
           mkdir -p release
 
-          cp \
-            android/app/build/outputs/apk/release/app-release.apk \
-            release/Boyos-Hisab-Release.apk
+          cp android/app/build/outputs/apk/release/app-release.apk \
+             release/Boyos-Hisab-Release.apk
 
-          cp \
-            android/app/build/outputs/bundle/release/app-release.aab \
-            release/Boyos-Hisab-Release.aab
+          cp android/app/build/outputs/bundle/release/app-release.aab \
+             release/Boyos-Hisab-Release.aab
 
-
-      # --------------------------------------------------
-      # 26. Upload APK + AAB
-      # --------------------------------------------------
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
-
         with:
-
           name: Boyos-Hisab-Release
-
           path: release/
-
           if-no-files-found: error
